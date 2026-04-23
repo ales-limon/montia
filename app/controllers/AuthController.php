@@ -1,0 +1,116 @@
+<?php
+/**
+ * Controlador de Autenticación - LinkViewer
+ * Gestiona el flujo de registro, login y sesiones
+ */
+
+require_once __DIR__ . '/../models/UsuarioModel.php';
+
+class AuthController {
+    private $userModel;
+
+    public function __construct($pdo) {
+        $this->userModel = new UsuarioModel($pdo);
+    }
+
+    /**
+     * Procesar Registro
+     */
+    public function register() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_SPECIAL_CHARS);
+            $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+            $password = $_POST['password'] ?? '';
+
+            if (!$nombre || !$email || strlen($password) < 6) {
+                $this->jsonResponse(false, null, "Datos inválidos o contraseña muy corta.");
+                return;
+            }
+
+            $userId = $this->userModel->registrar($nombre, $email, $password);
+            if ($userId) {
+                $this->jsonResponse(true, null, "Registro exitoso. Ya puede iniciar sesión.");
+            } else {
+                $this->jsonResponse(false, null, "El email ya está registrado o hubo un error.");
+            }
+        }
+    }
+
+    /**
+     * Procesar Login
+     */
+    public function login() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+            $password = $_POST['password'] ?? '';
+
+            if (!$email || !$password) {
+                $this->jsonResponse(false, null, "Credenciales incompletas.");
+                return;
+            }
+
+            $user = $this->userModel->login($email, $password);
+            if ($user) {
+                session_regenerate_id(true); // Prevenir fijación de sesión y limpiar datos antiguos
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['id_tenant'] = $user['id_tenant'];
+                $_SESSION['user_name'] = $user['nombre'];
+                $_SESSION['user_rol'] = $user['rol'];
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+                $this->jsonResponse(true, ['redirect' => 'panel.php'], "Sesión iniciada.");
+            } else {
+                $this->jsonResponse(false, null, "Email o contraseña incorrectos.");
+            }
+        }
+    }
+
+    /**
+     * Cambio de contraseña seguro
+     */
+    public function changePassword() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id_usuario = getTenantId();
+            $pass_actual = $_POST['pass_actual'] ?? '';
+            $pass_nueva = $_POST['pass_nueva'] ?? '';
+
+            if (!$id_usuario) $this->jsonResponse(false, null, "Sesión no válida.");
+
+            // Validar contraseña actual
+            $stmt = $this->db->prepare("SELECT password FROM usuarios WHERE id = ?");
+            $stmt->execute([$id_usuario]);
+            $user = $stmt->fetch();
+
+            if ($user && password_verify($pass_actual, $user['password'])) {
+                $new_hash = password_hash($pass_nueva, PASSWORD_BCRYPT);
+                $stmt = $this->db->prepare("UPDATE usuarios SET password = ? WHERE id = ?");
+                $stmt->execute([$new_hash, $id_usuario]);
+                $this->jsonResponse(true, null, "Contraseña actualizada.");
+            } else {
+                $this->jsonResponse(false, null, "La contraseña actual es incorrecta.");
+            }
+        }
+    }
+
+    /**
+     * Cerrar Sesión
+     */
+    public function logout() {
+        session_destroy();
+        header("Location: login.php");
+        exit();
+    }
+
+    /**
+     * Respuesta JSON estándar FORJIATO
+     */
+    private function jsonResponse($success, $data = null, $error = null) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => $success,
+            'data' => $data,
+            'error' => $error
+        ]);
+        exit();
+    }
+}

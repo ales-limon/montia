@@ -1,0 +1,9 @@
+# LinkViewer - Git Ignore
+.env
+error_debug.txt
+storage/logs/*
+brain/
+.gemini/
+*.log
+node_modules/
+.DS_Store

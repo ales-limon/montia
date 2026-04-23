@@ -1,0 +1,17 @@
+{
+  "name": "LinkViewer PWA",
+  "short_name": "LinkViewer",
+  "description": "Tu biblioteca personal de enlaces inteligentes.",
+  "start_url": "panel.php",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
