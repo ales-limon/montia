@@ -26,6 +26,12 @@ class MetadataService {
             if ($xData) return array_merge($data, $xData);
         }
 
+        // Soporte Especial para YouTube (vía OEmbed) - Más fiable en producción
+        if (strpos($url, 'youtube.com') !== false || strpos($url, 'youtu.be') !== false) {
+            $ytData = $this->fetchYouTubeOEmbed($url);
+            if ($ytData) return array_merge($data, $ytData);
+        }
+
         try {
             $html = $this->fetchHtml($url);
             if (!$html) return $data;
@@ -174,6 +180,23 @@ class MetadataService {
                 }
 
                 return $data;
+            }
+        }
+        /**
+     * Extraer metadatos de YouTube usando su API oficial de OEmbed
+     */
+    private function fetchYouTubeOEmbed($url) {
+        $apiBase = "https://www.youtube.com/oembed?url=" . urlencode($url) . "&format=json";
+        $json = $this->fetchHtml($apiBase);
+        
+        if ($json) {
+            $decoded = json_decode($json, true);
+            if ($decoded) {
+                return [
+                    'titulo' => $decoded['title'] ?? 'YouTube Video',
+                    'descripcion' => ($decoded['author_name'] ?? 'YouTube') . " - Video",
+                    'imagen_url' => $decoded['thumbnail_url'] ?? ''
+                ];
             }
         }
         return null;
