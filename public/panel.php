@@ -614,6 +614,27 @@ $userName = $_SESSION['user_name'];
             } catch (e) { console.error(e); }
         }
 
+        // Manejar datos compartidos desde otras aplicaciones (Web Share Target)
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const sharedUrl = params.get('url') || params.get('text');
+            const sharedTitle = params.get('title');
+
+            if (sharedUrl) {
+                const urlMatch = sharedUrl.match(/https?:\/\/[^\s]+/);
+                if (urlMatch) {
+                    const cleanUrl = urlMatch[0];
+                    openModal();
+                    document.getElementById('editLinkUrl').value = cleanUrl;
+                    if (sharedTitle || (sharedUrl !== cleanUrl)) {
+                        const nota = sharedTitle || sharedUrl.replace(cleanUrl, '').trim();
+                        document.querySelector('#addLinkForm textarea[name="notas"]').value = nota;
+                    }
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+        });
+
         loadCategories();
         loadLinks();
         updateNotifBadge();
