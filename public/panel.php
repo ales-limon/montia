@@ -72,6 +72,21 @@ $userName = $_SESSION['user_name'];
             #linksContainer { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
         }
 
+        .modal-actions {
+            margin-top: 2rem;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .modal-actions > * {
+            flex: 1 1 100px;
+            min-width: 100px;
+            justify-content: center !important;
+        }
+        .modal-actions a.btn-primary {
+            flex: 2 1 150px;
+        }
+
     </style>
 </head>
 <body>
@@ -191,9 +206,9 @@ $userName = $_SESSION['user_name'];
             <div id="detailBody">
                 <!-- Se llena dinámicamente -->
             </div>
-            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-                <button id="detailEditBtn" class="btn glass" style="flex: 1; justify-content: center; color: var(--accent);"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
-                <a id="detailOpenBtn" href="#" target="_blank" class="btn btn-primary" style="flex: 2; justify-content: center;">
+            <div class="modal-actions">
+                <button id="detailEditBtn" class="btn glass" style="color: var(--accent);"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+                <a id="detailOpenBtn" href="#" target="_blank" class="btn btn-primary">
                     Abrir Enlace <i class="fa-solid fa-external-link"></i>
                 </a>
             </div>
@@ -377,7 +392,7 @@ $userName = $_SESSION['user_name'];
                 shareBtn.className = 'btn glass';
                 shareBtn.style.cssText = 'flex: 1; justify-content: center; color: var(--primary); margin-top: 1rem;';
                 shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Compartir';
-                document.querySelector('#detailModal .modal-content div[style*="margin-top: 2rem"]').prepend(shareBtn);
+                document.querySelector('#detailModal .modal-actions').prepend(shareBtn);
             }
             shareBtn.onclick = () => {
                 closeDetailModal();
