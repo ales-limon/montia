@@ -9,7 +9,7 @@ ob_start();
 $envPath = __DIR__ . '/../.env';
 $env = file_exists($envPath) ? parse_ini_file($envPath) : [];
 
-if (($env['APP_ENV'] ?? 'dev') === 'dev') {
+if (($env['APP_ENV'] ?? 'prod') === 'dev') {
     ini_set('display_errors', 1);
     error_reporting(E_ALL);
 } else {
@@ -29,7 +29,8 @@ if (!isset($_SESSION['csrf_token'])) {
 
 // Conexión a Base de Datos (PDO)
 try {
-    $dsn = "mysql:host={$env['DB_HOST']};port={$env['DB_PORT']};dbname={$env['DB_NAME']};charset=utf8mb4";
+    $dbPort = $env['DB_PORT'] ?? 3306;
+    $dsn = "mysql:host={$env['DB_HOST']};port={$dbPort};dbname={$env['DB_NAME']};charset=utf8mb4";
     $pdo = new PDO($dsn, $env['DB_USER'], $env['DB_PASS'], [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -42,9 +43,9 @@ try {
 }
 
 // Definición de constantes
-define('APP_NAME', $env['APP_NAME']);
-define('APP_URL', $env['APP_URL']);
-define('CSRF_SECRET', $env['CSRF_SECRET']);
+define('APP_NAME', $env['APP_NAME'] ?? 'Montia');
+define('APP_URL', $env['APP_URL'] ?? 'https://montia.mx');
+define('CSRF_SECRET', $env['CSRF_SECRET'] ?? 'default_secret_forjiato_123');
 
 /**
  * Función para obtener id_tenant del usuario actual
