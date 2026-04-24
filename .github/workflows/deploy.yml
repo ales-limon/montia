@@ -1,0 +1,64 @@
+# Deploy GuardaLink to Production - v1.0.0
+name: Deploy GuardaLink to Production
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:  # Permite ejecutar manualmente desde la pestaña Actions
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 5.161.217.88 >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Test SSH connection
+        run: |
+          ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 \
+            -i ~/.ssh/id_rsa alejandro@5.161.217.88 "echo Conectado a GuardaLink Server"
+
+      - name: Deploy via rsync
+        run: |
+          rsync -avz --checksum --no-perms --no-owner --no-group \
+            -e "ssh -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=~/.ssh/known_hosts -i ~/.ssh/id_rsa" \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='.env' \
+            --exclude='logs/' \
+            --exclude='cache/' \
+            --exclude='brain/' \
+            --exclude='scratch/' \
+            --exclude='test_*.php' \
+            --exclude='debug_*.php' \
+            --exclude='check_*.php' \
+            --exclude='*.log' \
+            ./ \
+            alejandro@5.161.217.88:/home/forjiato/web/guardalink.mx/public_html/
+
+      - name: Fix permissions on server
+        run: |
+          ssh -i ~/.ssh/id_rsa alejandro@5.161.217.88 << 'EOF'
+            cd /home/forjiato/web/guardalink.mx/public_html
+            # Asegurar permisos básicos
+            sudo chown -R forjiato:forjiato .
+            find . -type d -exec chmod 755 {} \;
+            find . -type f -exec chmod 644 {} \;
+            # Blindaje .env
+            sudo chown forjiato:forjiato .env 2>/dev/null || true
+            sudo chmod 660 .env 2>/dev/null || true
+            echo "Despliegue de GuardaLink completado con éxito"
+          EOF
