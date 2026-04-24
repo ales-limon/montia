@@ -406,26 +406,11 @@ $userName = $_SESSION['user_name'];
 
         let currentShareData = null;
         async function openShareModal(id, titleBase64, urlBase64) {
-            const title = decodeURIComponent(atob(titleBase64));
-            const url = atob(urlBase64);
-            currentShareData = { id, titulo: title, url };
-
-            // Intento de Compartir Nativo (Mobile)
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: title,
-                        text: 'Mira lo que encontré en Montia',
-                        url: url
-                    });
-                    return; // Compartido con éxito nativamente
-                } catch (err) {
-                    // Si el usuario cancela, no hacemos nada o mostramos el modal como fallback
-                    console.log('Compartir nativo cancelado o falló');
-                }
-            }
-
-            // Fallback: Mostrar el modal interno de Montia (Desktop o si falla el nativo)
+            currentShareData = {
+                id: id,
+                titulo: decodeURIComponent(atob(titleBase64)),
+                url: atob(urlBase64)
+            };
             document.getElementById('shareModal').style.display = 'flex';
             loadContactsForSharing();
         }
