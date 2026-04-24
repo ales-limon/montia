@@ -15,16 +15,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup SSH key
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          # Asegurar que el archivo tenga el formato y salto de línea correcto
-          sed -i '$a\' ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 5.161.217.88 >> ~/.ssh/known_hosts 2>/dev/null || true
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
+          if_key_exists: replace
+
+      - name: Add to known hosts
+        run: ssh-keyscan -H 5.161.217.88 >> ~/.ssh/known_hosts
 
       - name: Test SSH connection
         run: |
