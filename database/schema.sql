@@ -1,8 +1,8 @@
 -- Script de creación de base de datos LinkViewer
 -- Estándar FORJIATO
 
-CREATE DATABASE IF NOT EXISTS linkviewer CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE linkviewer;
+-- CREATE DATABASE IF NOT EXISTS linkviewer CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- USE linkviewer;
 
 -- Tabla de Usuarios (Cada usuario es un tenant)
 CREATE TABLE IF NOT EXISTS usuarios (
