@@ -52,7 +52,14 @@ require_once __DIR__ . '/../config/config.php';
                     <input type="password" id="password" name="password" placeholder="••••••••" required minlength="6">
                 </div>
                 
-                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                <div class="input-group" style="display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 1rem;">
+                    <input type="checkbox" id="terms" name="terms" style="width: auto; margin-top: 0.2rem;" required>
+                    <label for="terms" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                        Acepto los <a href="terminos.php" target="_blank" style="color: var(--accent);">Términos de Servicio</a> y la <a href="terminos.php" target="_blank" style="color: var(--accent);">Política de Privacidad</a>.
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem;">
                     Registrarme <i class="fa-solid fa-check"></i>
                 </button>
             </form>

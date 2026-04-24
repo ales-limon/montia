@@ -43,13 +43,30 @@ $userEmail = $_SESSION['user_email'] ?? 'Sin email';
                 <i class="fa-solid fa-user"></i>
             </div>
             <h2><?php echo htmlspecialchars($userName); ?></h2>
-            <p style="color: var(--text-muted);"><?php echo htmlspecialchars($userEmail); ?></p>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <?php 
+                    $userPlan = $_SESSION['user_suscripcion'] ?? 'gratis'; 
+                ?>
+                <span class="status-badge <?php echo $userPlan === 'premium' ? 'status-premium' : 'status-gratis'; ?>" style="font-size: 0.65rem;">
+                    Plan <?php echo strtoupper($userPlan); ?>
+                </span>
+                <?php if ($userPlan !== 'premium'): ?>
+                    <a href="planes.php" style="color: #f1c40f; font-size: 0.75rem; text-decoration: none; font-weight: 700;">Mejorar <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                <?php endif; ?>
+            </div>
+            <p style="color: var(--text-muted);"><?php echo htmlspecialchars($userEmail ?: 'Sin email'); ?></p>
             
             <?php if ($_SESSION['user_rol'] === 'admin'): ?>
             <a href="admin.php" class="btn glass" style="margin-top: 1rem; color: #f1c40f; border-color: rgba(241, 196, 15, 0.3);">
                 <i class="fa-solid fa-crown"></i> Panel de Administración
             </a>
             <?php endif; ?>
+
+            <div style="margin-top: 1.5rem;">
+                <button onclick="shareAppWhatsApp()" class="btn glass" style="color: #25D366; border-color: rgba(37, 211, 102, 0.3); width: auto; margin: 0 auto;">
+                    <i class="fa-brands fa-whatsapp"></i> Invitar Amigos a GuardaLink
+                </button>
+            </div>
         </div>
 
         <!-- Gestión de Categorías -->
@@ -339,6 +356,13 @@ $userEmail = $_SESSION['user_email'] ?? 'Sin email';
         loadCategories();
         loadRequests();
         loadContacts();
+        function shareAppWhatsApp() {
+            const text = "¡Hola! Estoy usando GuardaLink para organizar todos mis enlaces de Instagram, TikTok y la web en un solo lugar. ¡Deberías probarlo! 🚀🔗";
+            // Nota: Aquí pondremos la URL real cuando la app esté en producción
+            const url = "https://guardalink.mx"; 
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(text + "\n\n" + url)}`;
+            window.open(waUrl, '_blank');
+        }
     </script>
 </body>
 </html>

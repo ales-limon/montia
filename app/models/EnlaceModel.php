@@ -13,6 +13,10 @@ class EnlaceModel {
         $this->tenantId = $tenantId;
     }
 
+    public function getDb() {
+        return $this->db;
+    }
+
     /**
      * Crear un nuevo enlace
      */

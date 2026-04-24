@@ -82,7 +82,10 @@ $userName = $_SESSION['user_name'];
                     <p style="color: var(--text-muted); font-size: 0.8rem;">Hola, <?php echo htmlspecialchars($userName); ?> <i class="fa-solid fa-hand-peace" style="color: var(--accent); margin-left: 5px;"></i></p>
                     <h1 style="font-size: 1.4rem;">Mis Enlaces</h1>
                 </div>
-                <div style="display: flex; gap: 0.8rem; align-items: center;">
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <a href="planes.php" class="btn glass" style="padding: 0.5rem; color: #f1c40f; border-color: rgba(241, 196, 15, 0.3); font-size: 0.8rem; height: 40px; display: flex; align-items: center; gap: 0.3rem;">
+                        <i class="fa-solid fa-star"></i> <span class="hide-mobile">Mejorar</span>
+                    </a>
                     <div class="glass" style="width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer;" onclick="location.href='perfil.php'">
                         <i class="fa-solid fa-user"></i>
                     </div>

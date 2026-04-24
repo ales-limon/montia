@@ -40,8 +40,8 @@ class AdminController {
         // Usuarios Recientes
         $recentUsers = $this->db->query("SELECT nombre, email, suscripcion, created_at FROM usuarios ORDER BY created_at DESC LIMIT 5")->fetchAll();
 
-        // Estimación de Ingresos (Premium a 5 USD/mes)
-        $revenue = $premiumUsers * 5;
+        // Estimación de Ingresos (Premium a 150 MXN/mes)
+        $revenue = $premiumUsers * 150;
 
         return [
             'success' => true,
@@ -55,5 +55,126 @@ class AdminController {
                 'revenue_est' => $revenue
             ]
         ];
+    }
+
+    /**
+     * Obtener lista de todos los usuarios para gestión
+     */
+    public function getUsers() {
+        if ($_SESSION['user_rol'] !== 'admin') {
+            return ['success' => false, 'error' => 'No autorizado.'];
+        }
+
+        $users = $this->db->query("SELECT id, nombre, email, suscripcion, rol, created_at FROM usuarios ORDER BY created_at DESC")->fetchAll();
+        return ['success' => true, 'data' => $users];
+    }
+
+    /**
+     * Actualizar plan de un usuario
+     */
+    public function updateUserPlan($userId, $newPlan) {
+        if ($_SESSION['user_rol'] !== 'admin') {
+            return ['success' => false, 'error' => 'No autorizado.'];
+        }
+
+        $stmt = $this->db->prepare("UPDATE usuarios SET suscripcion = ? WHERE id = ?");
+        $success = $stmt->execute([$newPlan, $userId]);
+        
+        return ['success' => $success];
+    }
+
+    /**
+     * Obtener logs de contenido bloqueado (Moderación)
+     */
+    public function getBlockedLogs() {
+        if ($_SESSION['user_rol'] !== 'admin') {
+            return ['success' => false, 'error' => 'No autorizado.'];
+        }
+
+        $logs = $this->db->query("
+            SELECT l.*, u.nombre as usuario_nombre, u.email as usuario_email 
+            FROM logs_actividad l 
+            JOIN usuarios u ON l.id_tenant = u.id 
+            WHERE l.accion = 'CONTENIDO_BLOQUEADO' 
+            ORDER BY l.created_at DESC
+        ")->fetchAll();
+        return ['success' => true, 'data' => $logs];
+    }
+
+    /**
+     * Obtener toda la configuración global
+     */
+    public function getConfig() {
+        if ($_SESSION['user_rol'] !== 'admin') {
+            return ['success' => false, 'error' => 'No autorizado.'];
+        }
+
+        $config = $this->db->query("SELECT * FROM configuracion")->fetchAll();
+        return ['success' => true, 'data' => $config];
+    }
+
+    /**
+     * Actualizar valores de configuración
+     */
+    public function updateConfig($settings) {
+        if ($_SESSION['user_rol'] !== 'admin') {
+            return ['success' => false, 'error' => 'No autorizado.'];
+        }
+
+        $stmt = $this->db->prepare("UPDATE configuracion SET c_value = ? WHERE c_key = ?");
+        foreach ($settings as $key => $value) {
+            $stmt->execute([$value, $key]);
+        }
+        
+        return ['success' => true];
+    }
+
+    /**
+     * Obtener solicitudes de mejora de plan (Pagos)
+     */
+    public function getUpgradeRequests() {
+        if ($_SESSION['user_rol'] !== 'admin') {
+            return ['success' => false, 'error' => 'No autorizado.'];
+        }
+
+        $requests = $this->db->query("
+            SELECT s.*, u.nombre as usuario_nombre, u.email as usuario_email 
+            FROM solicitudes_plan s 
+            JOIN usuarios u ON s.id_usuario = u.id 
+            WHERE s.estado = 'pendiente' 
+            ORDER BY s.created_at DESC
+        ")->fetchAll();
+        return ['success' => true, 'data' => $requests];
+    }
+
+    /**
+     * Procesar una solicitud (Aprobar/Cancelar)
+     */
+    public function handleUpgradeRequest($requestId, $action) {
+        if ($_SESSION['user_rol'] !== 'admin') {
+            return ['success' => false, 'error' => 'No autorizado.'];
+        }
+
+        if ($action === 'aprobar') {
+            // Obtener datos de la solicitud
+            $stmt = $this->db->prepare("SELECT id_usuario, plan_solicitado FROM solicitudes_plan WHERE id = ?");
+            $stmt->execute([$requestId]);
+            $req = $stmt->fetch();
+
+            if ($req) {
+                // Actualizar usuario
+                $this->updateUserPlan($req['id_usuario'], $req['plan_solicitado']);
+                // Marcar solicitud como completada
+                $stmt = $this->db->prepare("UPDATE solicitudes_plan SET estado = 'completado' WHERE id = ?");
+                $stmt->execute([$requestId]);
+                return ['success' => true];
+            }
+        } elseif ($action === 'cancelar') {
+            $stmt = $this->db->prepare("UPDATE solicitudes_plan SET estado = 'cancelado' WHERE id = ?");
+            $stmt->execute([$requestId]);
+            return ['success' => true];
+        }
+
+        return ['success' => false, 'error' => 'Acción no válida.'];
     }
 }

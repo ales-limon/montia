@@ -21,6 +21,7 @@ Este documento resume las reglas obligatorias para el proyecto **LinkViewer**.
 - **CSRF**: Token en formularios y endpoints sensibles. Validar siempre.
 - **Input**: Validar y sanear TODO input. Usar Prepared Statements (PDO).
 - **Output**: Escapar HTML en vistas. Headers correctos.
+- **Brute Force**: Implementar limitación de intentos (Rate Limiting) por IP en endpoints de autenticación (Login). Bloquear tras 5 fallos en 15 minutos.
 
 ## API / AJAX
 - SIEMPRE responder JSON limpio.

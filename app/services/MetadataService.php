@@ -14,6 +14,18 @@ class MetadataService {
             'url' => $url
         ];
 
+        // Soporte Especial para TikTok (vía OEmbed)
+        if (strpos($url, 'tiktok.com') !== false) {
+            $tiktokData = $this->fetchTikTokOEmbed($url);
+            if ($tiktokData) return array_merge($data, $tiktokData);
+        }
+
+        // Soporte Especial para X / Twitter (vía OEmbed)
+        if (strpos($url, 'twitter.com') !== false || strpos($url, 'x.com') !== false) {
+            $xData = $this->fetchXOEmbed($url);
+            if ($xData) return array_merge($data, $xData);
+        }
+
         try {
             $html = $this->fetchHtml($url);
             if (!$html) return $data;
@@ -38,9 +50,15 @@ class MetadataService {
                                 ?? 'Sin descripción disponible.';
 
             // 3. EXTRAER IMAGEN
-            $data['imagen_url'] = $this->getXpathValue($xpath, '//meta[@property="og:image"]/@content')
-                               ?? $this->getXpathValue($xpath, '//meta[@name="twitter:image"]/@content')
-                               ?? '';
+            $img = $this->getXpathValue($xpath, '//meta[@property="og:image"]/@content')
+                ?? $this->getXpathValue($xpath, '//meta[@name="twitter:image"]/@content')
+                ?? $this->getXpathValue($xpath, '//link[@rel="apple-touch-icon"]/@href')
+                ?? $this->getXpathValue($xpath, '//link[@rel="icon"]/@href')
+                ?? $this->getXpathValue($xpath, '//link[@rel="shortcut icon"]/@href')
+                ?? $this->getXpathValue($xpath, '//img[not(contains(@src, "data:image"))]/@src') // Primera imagen real
+                ?? '';
+
+            $data['imagen_url'] = $this->resolveUrl($img, $url);
 
             // Limpieza de descripción simplificada
             if (strlen($data['descripcion']) > 250) {
@@ -54,8 +72,116 @@ class MetadataService {
         }
     }
 
-    private function fetchHtml($url) {
-        $userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36";
+    /**
+     * Resuelve una URL relativa a absoluta
+     */
+    private function resolveUrl($url, $base) {
+        if (!$url || parse_url($url, PHP_URL_SCHEME) != '') return $url;
+        
+        $parts = parse_url($base);
+        $baseUrl = $parts['scheme'] . '://' . $parts['host'];
+        
+        if (strpos($url, '/') === 0) {
+            return $baseUrl . $url;
+        } else {
+            $path = dirname($parts['path'] ?? '');
+            return $baseUrl . ($path == '/' || $path == '\\' ? '' : $path) . '/' . $url;
+        }
+    }
+
+    /**
+     * Verifica si el contenido extraído es seguro
+     */
+    public function checkContentSafety($data) {
+        $blackList = [
+            'porno', 'porn', 'sexo', 'sexual', 'hentai', 'xvideo', 'xhamster',
+            'droga', 'narco', 'sicario', 'gore', 'suicidio', 'muerte', 'asesinato',
+            'apuesta', 'casino', 'bet', 'ganar dinero', 'estafa', 'scam'
+        ];
+        
+        $textToClean = strtolower($data['titulo'] . ' ' . $data['descripcion'] . ' ' . $data['url']);
+        
+        foreach ($blackList as $word) {
+            if (strpos($textToClean, $word) !== false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Extraer metadatos de TikTok usando su API oficial de OEmbed
+     */
+    private function fetchTikTokOEmbed($url) {
+        $apiBase = "https://www.tiktok.com/oembed?url=" . urlencode($url);
+        $json = $this->fetchHtml($apiBase);
+        
+        if ($json) {
+            $decoded = json_decode($json, true);
+            if ($decoded) {
+                return [
+                    'titulo' => $decoded['title'] ?? 'TikTok Video',
+                    'descripcion' => "Video de TikTok por " . ($decoded['author_name'] ?? 'Usuario'),
+                    'imagen_url' => $decoded['thumbnail_url'] ?? ''
+                ];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Extraer metadatos de X (Twitter) usando su API oficial de OEmbed
+     */
+    private function fetchXOEmbed($url) {
+        $apiBase = "https://publish.twitter.com/oembed?url=" . urlencode($url);
+        $json = $this->fetchHtml($apiBase);
+        
+        if ($json) {
+            $decoded = json_decode($json, true);
+            if ($decoded) {
+                // Limpiar el HTML para extraer el texto del tweet si es posible
+                $text = strip_tags($decoded['html']);
+                // El texto suele venir con el autor al final, lo limpiamos un poco
+                $text = explode('—', $text)[0];
+
+                $data = [
+                    'titulo' => (isset($decoded['author_name']) ? "Tweet de " . $decoded['author_name'] : 'Post en X'),
+                    'descripcion' => trim($text),
+                    'imagen_url' => $decoded['thumbnail_url'] ?? ''
+                ];
+
+                // Intento de rescate de imagen si OEmbed no la dio
+                if (empty($data['imagen_url'])) {
+                    // Primero intentamos buscar el og:image con el bot
+                    $html = $this->fetchHtml($url, "Twitterbot/1.0");
+                    if ($html) {
+                        preg_match('/<meta[^>]*property=["\']og:image["\'][^>]*content=["\']([^"\']+)["\']/', $html, $matches);
+                        if (isset($matches[1])) {
+                            $data['imagen_url'] = $matches[1];
+                        } else {
+                            // Si falla, buscamos cualquier icono o favicon para que no quede vacío
+                            preg_match('/<link[^>]*rel=["\'](?:icon|shortcut icon|apple-touch-icon)["\'][^>]*href=["\']([^"\']+)["\']/', $html, $matches);
+                            if (isset($matches[1])) {
+                                $data['imagen_url'] = $this->makeAbsolute($url, $matches[1]);
+                            }
+                        }
+                    }
+                }
+
+                // Fallback final: Si sigue vacío, ponemos un logo de X premium para mantener la estética
+                if (empty($data['imagen_url'])) {
+                    $data['imagen_url'] = "https://abs.twimg.com/errors/logo46x38.png"; // Icono oficial de X como último recurso
+                }
+
+                return $data;
+            }
+        }
+        return null;
+    }
+
+    protected function fetchHtml($url, $customUserAgent = null) {
+        // User-Agent por defecto
+        $userAgent = $customUserAgent ?? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36";
         
         // Estrategia para Instagram: Usar el bot de Facebook
         if (strpos($url, 'instagram.com') !== false) {

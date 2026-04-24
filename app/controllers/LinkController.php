@@ -86,6 +86,25 @@ class LinkController {
             // Extraer metadatos automáticamente
             $metadata = $this->metadataService->extract($url);
             
+            // VALIDACIÓN DE SEGURIDAD (Moderación Proactiva)
+            if (!$this->metadataService->checkContentSafety($metadata)) {
+                // LOG DE MODERACIÓN: Registrar intento de subida de contenido prohibido
+                try {
+                    $pdo = $this->linkModel->getDb(); // Necesito acceso al PDO
+                    $stmt = $pdo->prepare("INSERT INTO logs_actividad (id_tenant, accion, detalles, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $this->tenantId, 
+                        'CONTENIDO_BLOQUEADO', 
+                        "URL: " . $url . " | Motivo: Filtro de seguridad", 
+                        $_SERVER['REMOTE_ADDR'], 
+                        $_SERVER['HTTP_USER_AGENT']
+                    ]);
+                } catch (Exception $e) { /* Fallo silencioso del log para no interrumpir la app */ }
+
+                $this->jsonResponse(false, null, "Contenido no permitido. LinkViewer prohíbe enlaces con temáticas sensibles o prohibidas.");
+                return;
+            }
+            
             $data = [
                 'url' => $url,
                 'id_categoria' => $id_categoria,

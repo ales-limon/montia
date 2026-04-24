@@ -44,7 +44,7 @@ class UsuarioModel {
      * Login de usuario
      */
     public function login($email, $password) {
-        $stmt = $this->db->prepare("SELECT id, nombre, email, password, rol, id_tenant FROM usuarios WHERE email = ?");
+        $stmt = $this->db->prepare("SELECT id, nombre, email, password, rol, id_tenant, suscripcion FROM usuarios WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
@@ -73,5 +73,13 @@ class UsuarioModel {
         foreach ($categorias as $cat) {
             $stmt->execute([$tenantId, $cat[0], $cat[1], $cat[2]]);
         }
+    }
+
+    /**
+     * Crear una solicitud de mejora de plan
+     */
+    public function solicitarMejoraPlan($userId, $plan) {
+        $stmt = $this->db->prepare("INSERT INTO solicitudes_plan (id_usuario, plan_solicitado) VALUES (?, ?)");
+        return $stmt->execute([$userId, $plan]);
     }
 }

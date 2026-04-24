@@ -176,6 +176,50 @@ try {
             $contactoCtrl->contarNoVistos();
             break;
 
+        case 'update_user_plan':
+            require_once __DIR__ . '/../app/controllers/AdminController.php';
+            $adminCtrl = new AdminController($pdo);
+            $userId = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT);
+            $newPlan = filter_input(INPUT_POST, 'plan', FILTER_SANITIZE_SPECIAL_CHARS);
+            $result = $adminCtrl->updateUserPlan($userId, $newPlan);
+            header('Content-Type: application/json');
+            echo json_encode($result);
+            exit;
+
+        case 'update_config':
+            require_once __DIR__ . '/../app/controllers/AdminController.php';
+            $adminCtrl = new AdminController($pdo);
+            // Tomamos todos los campos del POST excepto action
+            $settings = $_POST;
+            unset($settings['action']);
+            $result = $adminCtrl->updateConfig($settings);
+            header('Content-Type: application/json');
+            echo json_encode($result);
+            exit;
+
+        case 'solicitar_mejora':
+            require_once __DIR__ . '/../app/models/UsuarioModel.php';
+            $plan = filter_input(INPUT_POST, 'plan', FILTER_SANITIZE_SPECIAL_CHARS);
+            $userId = getTenantId();
+            if (!$userId || !$plan) {
+                echo json_encode(['success' => false, 'error' => 'Datos insuficientes.']); exit;
+            }
+            $userModel = new UsuarioModel($pdo);
+            $success = $userModel->solicitarMejoraPlan($userId, $plan);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => $success]);
+            exit;
+
+        case 'handle_upgrade':
+            require_once __DIR__ . '/../app/controllers/AdminController.php';
+            $adminCtrl = new AdminController($pdo);
+            $requestId = filter_input(INPUT_POST, 'request_id', FILTER_VALIDATE_INT);
+            $action = filter_input(INPUT_POST, 'process_action', FILTER_SANITIZE_SPECIAL_CHARS);
+            $result = $adminCtrl->handleUpgradeRequest($requestId, $action);
+            header('Content-Type: application/json');
+            echo json_encode($result);
+            exit;
+
         default:
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => 'Acción no reconocida.']);
