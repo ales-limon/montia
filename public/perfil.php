@@ -14,7 +14,7 @@ $userEmail = $_SESSION['user_email'] ?? 'Sin email';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil | LinkViewer</title>
+    <title>Perfil | Montia</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
@@ -95,7 +95,7 @@ $userEmail = $_SESSION['user_email'] ?? 'Sin email';
             <div style="margin-bottom: 2rem;">
                 <label style="display: block; margin-bottom: 0.5rem; font-size: 0.85rem;">Buscar amigos por email</label>
                 <div style="display: flex; gap: 0.5rem;">
-                    <input type="email" id="searchEmail" placeholder="ejemplo@linkviewer.com" style="flex-grow: 1;">
+                    <input type="email" id="searchEmail" placeholder="ejemplo@montia.mx" style="flex-grow: 1;">
                     <button onclick="searchUser()" class="btn glass" style="padding: 0.5rem 1rem;"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
                 <div id="searchResult" style="margin-top: 1rem;"></div>

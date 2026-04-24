@@ -1,4 +1,4 @@
-const CACHE_NAME = 'linkviewer-v1';
+const CACHE_NAME = 'montia-v1';
 const ASSETS = [
   'panel.php',
   'index.css',

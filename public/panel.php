@@ -505,7 +505,7 @@ $userName = $_SESSION['user_name'];
 
         function shareViaWhatsApp() {
             if (!currentShareData) return;
-            const text = `Mira lo que encontré en LinkViewer: ${currentShareData.titulo}\n\n${currentShareData.url}`;
+            const text = `Mira lo que encontré en Montia: ${currentShareData.titulo}\n\n${currentShareData.url}\n\nGuarda tus propios enlaces en: https://montia.mx`;
             const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
             window.open(waUrl, '_blank');
             closeShareModal();

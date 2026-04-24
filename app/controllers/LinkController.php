@@ -101,7 +101,7 @@ class LinkController {
                     ]);
                 } catch (Exception $e) { /* Fallo silencioso del log para no interrumpir la app */ }
 
-                $this->jsonResponse(false, null, "Contenido no permitido. LinkViewer prohíbe enlaces con temáticas sensibles o prohibidas.");
+                $this->jsonResponse(false, null, "Contenido no permitido. Montia prohíbe enlaces con temáticas sensibles o prohibidas.");
                 return;
             }
             
