@@ -1,6 +1,6 @@
 {
-  "name": "LinkViewer PWA",
-  "short_name": "LinkViewer",
+  "name": "Montia PWA",
+  "short_name": "Montia",
   "description": "Tu biblioteca personal de enlaces inteligentes.",
   "start_url": "panel.php",
   "display": "standalone",

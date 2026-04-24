@@ -1,6 +1,6 @@
 # Reglas Globales FORJIATO
 
-Este documento resume las reglas obligatorias para el proyecto **LinkViewer**.
+Este documento resume las reglas obligatorias para el proyecto **Montia**.
 
 ## Estructura MVC
 - **Controlador**: Orquesta (no lógica pesada).

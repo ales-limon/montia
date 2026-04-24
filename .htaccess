@@ -1,0 +1,10 @@
+# Bloqueo de acceso directo a carpetas sensibles
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Redirigir la raíz a la carpeta public
+    RewriteRule ^$ public/ [L]
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

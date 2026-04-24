@@ -8,9 +8,11 @@ require_once __DIR__ . '/../models/UsuarioModel.php';
 
 class AuthController {
     private $userModel;
+    private $db;
 
     public function __construct($pdo) {
         $this->userModel = new UsuarioModel($pdo);
+        $this->db = $pdo;
     }
 
     /**

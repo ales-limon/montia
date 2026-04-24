@@ -1,0 +1,14 @@
+# Configuración para la carpeta pública
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # No procesar si es un archivo o directorio real
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Redirigir a index.php (si decides usar un router frontal más adelante)
+    # Por ahora, simplemente bloqueamos el listado.
+</IfModule>

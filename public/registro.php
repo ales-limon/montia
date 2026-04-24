@@ -6,7 +6,7 @@ require_once __DIR__ . '/../config/config.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro | LinkViewer</title>
+    <title>Registro | Montia</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -34,7 +34,7 @@ require_once __DIR__ . '/../config/config.php';
         <div class="logo-section">
             <i class="fa-solid fa-user-plus" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
             <h1>Crear Cuenta</h1>
-            <p style="color: var(--text-muted)">Únete a LinkViewer y organiza tus enlaces.</p>
+            <p style="color: var(--text-muted)">Únete a Montia y organiza tus enlaces.</p>
         </div>
 
         <div class="login-box glass">

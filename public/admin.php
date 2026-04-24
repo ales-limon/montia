@@ -24,7 +24,7 @@ $upgradeRequests = ($section === 'requests') ? $admin->getUpgradeRequests()['dat
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | GuardaLink</title>
+    <title>Admin Dashboard | Montia</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -344,7 +344,7 @@ $upgradeRequests = ($section === 'requests') ? $admin->getUpgradeRequests()['dat
             </div>
 
             <footer class="dashboard-footer">
-                GuardaLink Admin &copy; <?php echo date('Y'); ?> | <span style="color: var(--primary);">Versión 1.2.0</span>
+                Montia Admin &copy; <?php echo date('Y'); ?> | <span style="color: var(--primary);">Versión 1.2.0</span>
             </footer>
         </main>
     </div>

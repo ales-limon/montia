@@ -1,5 +1,5 @@
-# Deploy GuardaLink to Production - v1.0.0
-name: Deploy GuardaLink to Production
+# Deploy Montia to Production - v1.0.1
+name: Deploy Montia to Production
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
       - name: Test SSH connection
         run: |
           ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 \
-            -i ~/.ssh/id_rsa alejandro@5.161.217.88 "echo Conectado a GuardaLink Server"
+            -i ~/.ssh/id_rsa alejandro@5.161.217.88 "echo Conectado a Montia Server"
 
       - name: Deploy via rsync
         run: |
@@ -47,12 +47,12 @@ jobs:
             --exclude='check_*.php' \
             --exclude='*.log' \
             ./ \
-            alejandro@5.161.217.88:/home/forjiato/web/guardalink.mx/public_html/
+            alejandro@5.161.217.88:/home/forjiato/web/montia.mx/public_html/
 
       - name: Fix permissions on server
         run: |
           ssh -i ~/.ssh/id_rsa alejandro@5.161.217.88 << 'EOF'
-            cd /home/forjiato/web/guardalink.mx/public_html
+            cd /home/forjiato/web/montia.mx/public_html
             # Asegurar permisos básicos
             sudo chown -R forjiato:forjiato .
             find . -type d -exec chmod 755 {} \;
@@ -60,5 +60,5 @@ jobs:
             # Blindaje .env
             sudo chown forjiato:forjiato .env 2>/dev/null || true
             sudo chmod 660 .env 2>/dev/null || true
-            echo "Despliegue de GuardaLink completado con éxito"
+            echo "Despliegue de Montia completado con éxito"
           EOF

@@ -6,7 +6,7 @@ require_once __DIR__ . '/../config/config.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Términos y Privacidad | LinkViewer</title>
+    <title>Términos y Privacidad | Montia</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -26,10 +26,10 @@ require_once __DIR__ . '/../config/config.php';
         <div class="legal-box glass">
             <h1>Términos de Servicio y Privacidad</h1>
             
-            <p>Bienvenido a <strong>LinkViewer</strong>. Al utilizar nuestra plataforma, aceptas cumplir con los siguientes términos y condiciones de uso.</p>
+            <p>Bienvenido a <strong>Montia</strong>. Al utilizar nuestra plataforma, aceptas cumplir con los siguientes términos y condiciones de uso.</p>
 
             <h2>1. Uso Aceptable</h2>
-            <p>LinkViewer es una herramienta para la organización personal y profesional de enlaces. Queda estrictamente prohibido:</p>
+            <p>Montia es una herramienta para la organización personal y profesional de enlaces. Queda estrictamente prohibido:</p>
             <ul>
                 <li>Almacenar o compartir contenido de carácter pornográfico o sexual explícito.</li>
                 <li>Compartir enlaces que promuevan el odio, la violencia, la discriminación o actividades ilegales.</li>
@@ -39,7 +39,7 @@ require_once __DIR__ . '/../config/config.php';
             <p>El incumplimiento de estas normas resultará en la <strong>suspensión inmediata y definitiva</strong> de la cuenta sin previo aviso.</p>
 
             <h2>2. Tratamiento de Datos Personales</h2>
-            <p>En LinkViewer solo solicitamos y almacenamos dos datos personales: tu <strong>Nombre</strong> y tu <strong>Correo Electrónico</strong>. El tratamiento de estos datos es el siguiente:</p>
+            <p>En Montia solo solicitamos y almacenamos dos datos personales: tu <strong>Nombre</strong> y tu <strong>Correo Electrónico</strong>. El tratamiento de estos datos es el siguiente:</p>
             <ul>
                 <li><strong>Identificación:</strong> Tu nombre se utiliza para personalizar tu experiencia en el panel y para que tus contactos puedan identificarte en la red interna.</li>
                 <li><strong>Comunicación y Acceso:</strong> Tu correo electrónico es tu identificador único de acceso (login) y se utiliza exclusivamente para la gestión de tu cuenta y seguridad (como recuperación de contraseña).</li>
@@ -55,7 +55,7 @@ require_once __DIR__ . '/../config/config.php';
             </ul>
 
             <h2>3. Responsabilidad</h2>
-            <p>LinkViewer no se hace responsable del contenido de los sitios web externos vinculados a través de la plataforma. El usuario es el único responsable de la legalidad de los enlaces que decide guardar o compartir.</p>
+            <p>Montia no se hace responsable del contenido de los sitios web externos vinculados a través de la plataforma. El usuario es el único responsable de la legalidad de los enlaces que decide guardar o compartir.</p>
 
             <h2>4. Modificaciones</h2>
             <p>Nos reservamos el derecho de actualizar estos términos en cualquier momento para adaptarlos a nuevas funciones o requisitos legales.</p>

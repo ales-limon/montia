@@ -6,7 +6,7 @@ require_once __DIR__ . '/../config/config.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | LinkViewer</title>
+    <title>Login | Montia</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -40,7 +40,7 @@ require_once __DIR__ . '/../config/config.php';
     <div class="login-container">
         <div class="logo-section">
             <i class="fa-solid fa-link logo-icon" style="font-size: 4rem; margin-bottom: 0.5rem;"></i>
-            <h1 style="font-size: 2.5rem; letter-spacing: -1px;">LinkViewer</h1>
+            <h1 style="font-size: 2.5rem; letter-spacing: -1px;">Montia</h1>
             <p style="color: var(--text-muted); font-size: 1.1rem; margin-top: 0.5rem;">Tu biblioteca inteligente de enlaces.</p>
             
             <div style="display: flex; justify-content: center; gap: 1.5rem; margin-top: 2rem; font-size: 0.8rem; color: var(--accent);">

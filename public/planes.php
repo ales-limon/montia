@@ -25,7 +25,7 @@ $blockSize = $config['extra_block_size'] ?? 150;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planes | GuardaLink</title>
+    <title>Planes | Montia</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
