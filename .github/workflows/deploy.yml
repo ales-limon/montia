@@ -29,11 +29,6 @@ jobs:
           ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 \
             -i ~/.ssh/id_rsa alejandro@5.161.217.88 "echo Conectado a Montia Server"
 
-      - name: Prepare server permissions for transfer
-        run: |
-          ssh -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_rsa alejandro@5.161.217.88 \
-            "sudo chown -R alejandro:alejandro /home/forjiato/web/montia.mx/public_html/"
-
       - name: Deploy via rsync
         run: |
           rsync -avz --checksum --no-perms --no-owner --no-group \
