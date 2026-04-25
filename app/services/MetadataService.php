@@ -182,7 +182,10 @@ class MetadataService {
                 return $data;
             }
         }
-        /**
+        return null;
+    }
+
+    /**
      * Extraer metadatos de YouTube usando su API oficial de OEmbed
      */
     private function fetchYouTubeOEmbed($url) {
