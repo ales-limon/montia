@@ -51,19 +51,17 @@ $blockSize = $config['extra_block_size'] ?? 150;
         .plan-card.active { border: 2px solid var(--primary); }
         .plan-badge {
             position: absolute;
-            top: -25px; /* Lo subimos más para que no toque la línea del borde */
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
-            background: #6366f1;
             background: var(--primary-gradient);
-            padding: 0.5rem 1.4rem;
+            padding: 0.3rem 1rem;
             border-radius: 30px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 800;
             white-space: nowrap;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-            z-index: 100;
-            border: 2px solid #0f172a;
+            z-index: 10;
+            letter-spacing: 1px;
         }
         .plan-price { font-size: 2.5rem; font-weight: 800; margin: 1.5rem 0; }
         .plan-price span { font-size: 1rem; color: var(--text-muted); }
