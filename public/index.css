@@ -9,6 +9,7 @@
     --text-muted: #94a3b8;
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
