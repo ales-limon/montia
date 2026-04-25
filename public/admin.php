@@ -46,7 +46,9 @@ $upgradeRequests = ($section === 'requests') ? $admin->getUpgradeRequests()['dat
         .status-gratis { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); }
         
         .admin-select, .admin-input { background: #1a1a2e; color: white; border: 1px solid var(--glass-border); padding: 0.6rem; border-radius: 8px; font-size: 0.9rem; width: 100%; }
-        .config-row { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .config-row { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 2rem; }
+        .config-label { flex: 1; min-width: 200px; }
+        .config-input-wrapper { flex: 1; max-width: 400px; }
         
         .nav-link.has-badge { position: relative; }
         .nav-badge { position: absolute; top: 10px; right: 10px; background: #ff4757; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.65rem; font-weight: 800; }
@@ -326,11 +328,11 @@ $upgradeRequests = ($section === 'requests') ? $admin->getUpgradeRequests()['dat
                         <form id="configForm" style="padding: 0;">
                             <?php foreach ($globalConfig as $c): ?>
                                 <div class="config-row">
-                                    <div style="flex: 1;">
+                                    <div class="config-label">
                                         <label style="display: block; font-weight: 600; font-size: 0.9rem;"><?php echo $c['c_label']; ?></label>
                                         <span style="font-size: 0.75rem; color: var(--text-muted);"><?php echo $c['c_key']; ?></span>
                                     </div>
-                                    <div style="flex: 1;">
+                                    <div class="config-input-wrapper">
                                         <?php if ($c['c_key'] === 'maintenance_mode' || $c['c_key'] === 'allow_registrations'): ?>
                                             <select name="<?php echo $c['c_key']; ?>" class="admin-select">
                                                 <option value="1" <?php echo $c['c_value'] == '1' ? 'selected' : ''; ?>>Activado</option>
