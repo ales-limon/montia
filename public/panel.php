@@ -345,13 +345,29 @@ $userName = $_SESSION['user_name'];
             });
         });
 
-        function openModal() { 
+        async function openModal() { 
             document.getElementById('editLinkId').value = '';
             document.getElementById('urlGroup').style.display = 'block';
             document.getElementById('editLinkUrl').required = true;
             document.getElementById('addLinkForm').reset();
             document.querySelector('#addModal h2').innerText = 'Añadir Enlace';
             document.getElementById('addModal').style.display = 'flex'; 
+
+            // Inteligencia de Portapapeles (Auto-Paste UX)
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
+                        const urlInput = document.getElementById('editLinkUrl');
+                        urlInput.value = text.trim();
+                        // Pequeño efecto visual para avisar que se pegó algo
+                        urlInput.style.borderColor = 'var(--accent)';
+                        setTimeout(() => urlInput.style.borderColor = '', 1000);
+                    }
+                } catch (err) {
+                    console.log("Portapapeles no disponible o permiso denegado.");
+                }
+            }
         }
 
         async function openEditModal(id) {
