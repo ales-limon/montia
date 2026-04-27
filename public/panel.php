@@ -199,8 +199,12 @@ $userName = $_SESSION['user_name'];
                 <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 1.5rem;" onclick="closeShareModal()"></i>
             </div>
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <button onclick="shareViaWhatsApp()" class="btn" style="background: #25D366; color: white; justify-content: center;">
-                    <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> WhatsApp
+                <div class="input-group" style="margin-bottom: 0.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--text-muted);"><i class="fa-brands fa-whatsapp"></i> ¿A quién se lo envías? (Opcional)</label>
+                    <input type="text" id="waRecipient" placeholder="Nombre o alias..." style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 0.6rem;">
+                </div>
+                <button onclick="shareViaWhatsApp()" class="btn" style="background: #25D366; color: white; justify-content: center; font-weight: 600;">
+                    Enviar por WhatsApp <i class="fa-solid fa-paper-plane"></i>
                 </button>
                 <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin: 0.5rem 0;">— Red Interna —</div>
                 <div id="contactsShareList" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 200px; overflow-y: auto;">
@@ -441,6 +445,7 @@ $userName = $_SESSION['user_name'];
                 titulo: decodeURIComponent(atob(titleBase64)),
                 url: atob(urlBase64)
             };
+            document.getElementById('waRecipient').value = ''; // Limpiar campo
             document.getElementById('shareModal').style.display = 'flex';
             loadContactsForSharing();
         }
@@ -535,8 +540,17 @@ $userName = $_SESSION['user_name'];
             if (currentFilter.shared) loadLinks();
         }
 
-        function shareViaWhatsApp() {
+        async function shareViaWhatsApp() {
             if (!currentShareData) return;
+            const recipient = document.getElementById('waRecipient').value;
+            
+            // Registrar el compartido en el servidor (sin esperar la respuesta para no retrasar)
+            const formData = new FormData();
+            formData.append('id_enlace', currentShareData.id);
+            formData.append('plataforma', 'whatsapp');
+            formData.append('destinatario', recipient);
+            fetch('api.php?action=log_external_share', { method: 'POST', body: formData });
+
             const text = `Mira lo que encontré: ${currentShareData.titulo}\n\n${currentShareData.url}\n\nTe lo comparto desde Montia.\nGuarda tus propios enlaces en: https://montia.mx`;
             const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
             window.open(waUrl, '_blank');

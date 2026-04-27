@@ -176,6 +176,20 @@ try {
             $contactoCtrl->contarNoVistos();
             break;
 
+        case 'log_external_share':
+            $idEnlace = filter_input(INPUT_POST, 'id_enlace', FILTER_VALIDATE_INT);
+            $plataforma = filter_input(INPUT_POST, 'plataforma', FILTER_SANITIZE_SPECIAL_CHARS);
+            $destinatario = filter_input(INPUT_POST, 'destinatario', FILTER_SANITIZE_SPECIAL_CHARS);
+            
+            if ($idEnlace) {
+                $stmt = $pdo->prepare("INSERT INTO compartidos_externos (id_tenant, id_enlace, plataforma, destinatario) VALUES (?, ?, ?, ?)");
+                $success = $stmt->execute([$id_tenant, $idEnlace, $plataforma, $destinatario]);
+                echo json_encode(['success' => $success]);
+            } else {
+                echo json_encode(['success' => false]);
+            }
+            exit;
+
         case 'update_user_plan':
             require_once __DIR__ . '/../app/controllers/AdminController.php';
             $adminCtrl = new AdminController($pdo);
