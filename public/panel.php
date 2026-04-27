@@ -53,8 +53,22 @@ $userName = $_SESSION['user_name'];
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         .search-bar { margin-bottom: 0.8rem; }
-        .categories-scroll { display: flex; gap: 0.8rem; overflow-x: auto; padding-bottom: 1rem; scrollbar-width: none; }
-        .categories-scroll::-webkit-scrollbar { display: none; }
+        .categories-scroll { 
+            display: flex; 
+            gap: 0.8rem; 
+            overflow-x: auto; 
+            padding-bottom: 0.8rem; 
+            scrollbar-width: thin; 
+            scrollbar-color: var(--primary) transparent;
+            cursor: grab;
+            user-select: none;
+            scroll-behavior: smooth;
+        }
+        .categories-scroll:active { cursor: grabbing; }
+        .categories-scroll::-webkit-scrollbar { height: 4px; }
+        .categories-scroll::-webkit-scrollbar-track { background: transparent; }
+        .categories-scroll::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+        .categories-scroll:hover::-webkit-scrollbar-thumb { background: var(--primary); }
         .cat-chip { padding: 0.5rem 1.2rem; border-radius: 20px; white-space: nowrap; background: var(--bg-card); border: 1px solid var(--glass-border); font-size: 0.85rem; cursor: pointer; transition: var(--transition); }
         .cat-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
         
@@ -624,6 +638,38 @@ $userName = $_SESSION['user_name'];
         loadLinks();
         updateNotifBadge();
         setInterval(updateNotifBadge, 30000);
+
+        // Habilitar Scroll Horizontal con la Rueda del Mouse en PC
+        const scrollContainer = document.querySelector(".categories-scroll");
+        scrollContainer.addEventListener("wheel", (evt) => {
+            evt.preventDefault();
+            scrollContainer.scrollLeft += evt.deltaY * 2.5; // Multiplicador para velocidad
+        });
+
+        // Habilitar Drag-to-Scroll (Arrastrar con el mouse)
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        scrollContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            scrollContainer.classList.add('active');
+            startX = e.pageX - scrollContainer.offsetLeft;
+            scrollLeft = scrollContainer.scrollLeft;
+        });
+        scrollContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+        });
+        scrollContainer.addEventListener('mouseup', () => {
+            isDown = false;
+        });
+        scrollContainer.addEventListener('mousemove', (e) => {
+            if(!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - scrollContainer.offsetLeft;
+            const walk = (x - startX) * 2; // Velocidad de arrastre
+            scrollContainer.scrollLeft = scrollLeft - walk;
+        });
     </script>
 </body>
 </html>
