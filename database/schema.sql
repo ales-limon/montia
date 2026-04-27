@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS enlaces (
     id_tenant INT NOT NULL,
     id_categoria INT,
     url TEXT NOT NULL,
-    titulo VARCHAR(255),
+    titulo TEXT,
     descripcion TEXT,
     imagen_url TEXT,
     notas TEXT,
