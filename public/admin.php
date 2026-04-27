@@ -18,6 +18,7 @@ $usersList = ($section === 'users') ? $admin->getUsers()['data'] : null;
 $moderationLogs = ($section === 'moderation') ? $admin->getBlockedLogs()['data'] : null;
 $globalConfig = ($section === 'config') ? $admin->getConfig()['data'] : null;
 $upgradeRequests = ($section === 'requests') ? $admin->getUpgradeRequests()['data'] : null;
+$systemFiles = ($section === 'system') ? $admin->getSystemFiles()['data'] : null;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -81,6 +82,9 @@ $upgradeRequests = ($section === 'requests') ? $admin->getUpgradeRequests()['dat
                 <a href="admin.php?section=config" class="nav-link <?php echo $section === 'config' ? 'active' : ''; ?>">
                     <i class="fa-solid fa-gear"></i> Configuración
                 </a>
+                <a href="admin.php?section=system" class="nav-link <?php echo $section === 'system' ? 'active' : ''; ?>">
+                    <i class="fa-solid fa-server"></i> Sistema
+                </a>
             </nav>
             <div style="padding: 1rem; border-top: 1px solid var(--glass-border);">
                 <a href="panel.php" class="nav-link">
@@ -101,6 +105,7 @@ $upgradeRequests = ($section === 'requests') ? $admin->getUpgradeRequests()['dat
                         elseif ($section === 'moderation') echo 'Centro de Moderación';
                         elseif ($section === 'config') echo 'Configuración Global';
                         elseif ($section === 'requests') echo 'Solicitudes de Membresía';
+                        elseif ($section === 'system') echo 'Mantenimiento del Sistema';
                         ?>
                     </h2>
                 </div>
@@ -346,6 +351,55 @@ $upgradeRequests = ($section === 'requests') ? $admin->getUpgradeRequests()['dat
                             <?php endforeach; ?>
                         </form>
                     </div>
+                <?php elseif ($section === 'system'): ?>
+                    <!-- SYSTEM/MAINTENANCE VIEW -->
+                    <div class="glass" style="padding: 1.5rem;">
+                        <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem;"><i class="fa-solid fa-microchip"></i> Scripts de Mantenimiento</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 2rem;">
+                            Utiliza estas herramientas para actualizar la base de datos o gestionar accesos. 
+                            <strong>Por seguridad, elimina los archivos una vez utilizados.</strong>
+                        </p>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Script</th>
+                                    <th>Descripción</th>
+                                    <th>Última Ejecución</th>
+                                    <th>Estado</th>
+                                    <th style="text-align: right;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($systemFiles as $f): ?>
+                                <tr>
+                                    <td>
+                                        <code style="background: rgba(255,255,255,0.05); padding: 0.2rem 0.5rem; border-radius: 4px; color: var(--primary);">
+                                            <?php echo $f['name']; ?>
+                                        </code>
+                                    </td>
+                                    <td style="font-size: 0.8rem;"><?php echo $f['desc']; ?></td>
+                                    <td style="font-size: 0.8rem; color: var(--text-muted);"><?php echo $f['last_run']; ?></td>
+                                    <td>
+                                        <?php if ($f['exists']): ?>
+                                            <span class="status-badge" style="background: rgba(99, 102, 241, 0.1); color: var(--primary);">Disponible</span>
+                                        <?php else: ?>
+                                            <span class="status-badge" style="background: rgba(255, 255, 255, 0.05); color: var(--text-muted);">Eliminado</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <?php if ($f['exists']): ?>
+                                            <button class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;" onclick="runScript('<?php echo $f['name']; ?>')">Ejecutar</button>
+                                            <button class="btn glass" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; color: #ff4757;" onclick="deleteScript('<?php echo $f['name']; ?>')">Borrar</button>
+                                        <?php else: ?>
+                                            <button class="btn glass" disabled style="padding: 0.4rem 0.8rem; font-size: 0.75rem; opacity: 0.5;">-</button>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 <?php endif; ?>
             </div>
 
@@ -405,6 +459,33 @@ $upgradeRequests = ($section === 'requests') ? $admin->getUpgradeRequests()['dat
                     row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
                 });
             };
+        }
+
+        async function runScript(name) {
+            if (!confirm(`¿Ejecutar ${name} ahora?`)) return;
+            const win = window.open(name, '_blank');
+            if (win) {
+                alert("Script ejecutado en una nueva pestaña. Recarga esta página para ver cambios.");
+                location.reload();
+            } else {
+                alert("Por favor, permite las ventanas emergentes para este sitio.");
+            }
+        }
+
+        async function deleteScript(name) {
+            if (!confirm(`¿BORRAR FÍSICAMENTE el archivo ${name}? Esta acción no se puede deshacer.`)) return;
+            
+            const fd = new FormData();
+            fd.append('filename', name);
+            
+            try {
+                const response = await fetch('api.php?action=delete_system_file', { method: 'POST', body: fd });
+                const result = await response.json();
+                if (result.success) {
+                    alert("Archivo eliminado con éxito.");
+                    location.reload();
+                } else alert("Error: " + result.error);
+            } catch (e) { alert("Error de conexión."); }
         }
     </script>
 </body>

@@ -25,6 +25,11 @@ try {
     $pdo->exec("ALTER TABLE enlaces MODIFY COLUMN titulo TEXT");
     echo "<p style='color: green;'>✅ Columna 'titulo' actualizada a TEXT con éxito.</p>";
 
+    // 3. Registrar ejecución en la configuración para el panel
+    $stmt = $pdo->prepare("INSERT INTO configuracion (c_key, c_value, c_label) VALUES (?, ?, ?) 
+                          ON DUPLICATE KEY UPDATE c_value = VALUES(c_value)");
+    $stmt->execute(['last_run_migrar.php', date('Y-m-d H:i:s'), 'Última ejecución de migración']);
+
     echo "<h3>Migración completada con éxito.</h3>";
     echo "<p><b>IMPORTANTE:</b> Por seguridad, elimina este archivo (public/migrar.php) después de usarlo.</p>";
     echo "<a href='index.php'>Volver al Inicio</a>";

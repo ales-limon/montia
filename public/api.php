@@ -220,6 +220,15 @@ try {
             echo json_encode($result);
             exit;
 
+        case 'delete_system_file':
+            require_once __DIR__ . '/../app/controllers/AdminController.php';
+            $adminCtrl = new AdminController($pdo);
+            $filename = filter_input(INPUT_POST, 'filename', FILTER_SANITIZE_SPECIAL_CHARS);
+            $result = $adminCtrl->deleteSystemFile($filename);
+            header('Content-Type: application/json');
+            echo json_encode($result);
+            exit;
+
         default:
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => 'Acción no reconocida.']);

@@ -124,9 +124,72 @@ class AdminController {
         $stmt = $this->db->prepare("UPDATE configuracion SET c_value = ? WHERE c_key = ?");
         foreach ($settings as $key => $value) {
             $stmt->execute([$value, $key]);
+            
+            // Sincronizar Modo Mantenimiento con el archivo .lock
+            if ($key === 'maintenance_mode') {
+                $lockFile = __DIR__ . '/../../blindaje.lock';
+                if ($value == '1') {
+                    file_put_contents($lockFile, 'LOCKED');
+                } else {
+                    if (file_exists($lockFile)) unlink($lockFile);
+                }
+            }
         }
         
         return ['success' => true];
+    }
+
+    /**
+     * Obtener archivos sensibles del sistema
+     */
+    public function getSystemFiles() {
+        if ($_SESSION['user_rol'] !== 'admin') return [];
+
+        $files = [
+            ['name' => 'migrar.php', 'desc' => 'Ejecuta actualizaciones de base de datos'],
+            ['name' => 'llave.php', 'desc' => 'Script de acceso de emergencia'],
+            ['name' => 'check_db.php', 'desc' => 'Script de diagnóstico de DB']
+        ];
+
+        $root = __DIR__ . '/../../public/';
+        $result = [];
+
+        foreach ($files as $f) {
+            $path = $root . $f['name'];
+            $exists = file_exists($path);
+            
+            // Consultar si ya se ejecutó (guardado en la tabla configuracion)
+            $stmt = $this->db->prepare("SELECT c_value FROM configuracion WHERE c_key = ?");
+            $stmt->execute(['last_run_' . $f['name']]);
+            $lastRun = $stmt->fetchColumn();
+
+            $result[] = [
+                'name' => $f['name'],
+                'desc' => $f['desc'],
+                'exists' => $exists,
+                'last_run' => $lastRun ? $lastRun : 'Nunca'
+            ];
+        }
+
+        return ['success' => true, 'data' => $result];
+    }
+
+    /**
+     * Eliminar un archivo del sistema de forma segura
+     */
+    public function deleteSystemFile($filename) {
+        if ($_SESSION['user_rol'] !== 'admin') return ['success' => false];
+        
+        // Seguridad: Solo permitir borrar archivos específicos
+        $allowed = ['migrar.php', 'llave.php', 'check_db.php'];
+        if (!in_array($filename, $allowed)) return ['success' => false, 'error' => 'Archivo no permitido.'];
+
+        $path = __DIR__ . '/../../public/' . $filename;
+        if (file_exists($path)) {
+            unlink($path);
+            return ['success' => true];
+        }
+        return ['success' => false, 'error' => 'El archivo no existe.'];
     }
 
     /**
