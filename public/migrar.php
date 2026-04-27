@@ -25,6 +25,14 @@ try {
     $pdo->exec("ALTER TABLE enlaces MODIFY COLUMN titulo TEXT");
     echo "<p style='color: green;'>✅ Columna 'titulo' actualizada a TEXT con éxito.</p>";
 
+    // Parche para notas en compartidos
+    try {
+        $pdo->exec("ALTER TABLE enlaces_compartidos ADD COLUMN notas_emisor TEXT AFTER id_receptor");
+        echo "<p style='color: green;'>✅ Columna 'notas_emisor' añadida con éxito.</p>";
+    } catch (Exception $e) {
+        echo "<p style='color: orange;'>ℹ️ La columna 'notas_emisor' ya existe (sin cambios).</p>";
+    }
+
     // 3. Registrar ejecución en la configuración para el panel
     $stmt = $pdo->prepare("INSERT INTO configuracion (c_key, c_value, c_label) VALUES (?, ?, ?) 
                           ON DUPLICATE KEY UPDATE c_value = VALUES(c_value)");

@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS enlaces_compartidos (
     id_enlace INT NOT NULL,
     id_emisor INT NOT NULL,
     id_receptor INT NOT NULL,
+    notas_emisor TEXT,
     visto BOOLEAN DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_enlace) REFERENCES enlaces(id) ON DELETE CASCADE,
