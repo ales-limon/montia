@@ -357,7 +357,7 @@ $userEmail = $_SESSION['user_email'] ?? 'Sin email';
         loadRequests();
         loadContacts();
         function shareAppWhatsApp() {
-            const text = "¡Hola! Estoy usando Montia para organizar todos mis enlaces de Instagram, TikTok y la web en un solo lugar. ¡Deberías probarlo! 🚀🔗";
+            const text = "¡Hola! Estoy usando Montia para organizar todos mis enlaces de Instagram, TikTok y la web en un solo lugar. ¡Deberías probarlo! \u{1F680}\u{1F517}";
             const url = "https://montia.mx"; 
             const waUrl = `https://wa.me/?text=${encodeURIComponent(text + "\n\n" + url)}`;
             window.open(waUrl, '_blank');
