@@ -25,11 +25,13 @@ class EnlaceModel {
             (id_tenant, id_categoria, url, titulo, descripcion, imagen_url, notas, es_favorito, ver_mas_tarde) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         
+        $titulo = mb_substr($data['titulo'] ?? '', 0, 255);
+        
         return $stmt->execute([
             $this->tenantId,
             $data['id_categoria'] ?? null,
             $data['url'],
-            $data['titulo'] ?? '',
+            $titulo,
             $data['descripcion'] ?? '',
             $data['imagen_url'] ?? '',
             $data['notas'] ?? '',

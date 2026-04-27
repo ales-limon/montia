@@ -88,6 +88,29 @@ CREATE TABLE IF NOT EXISTS enlaces_compartidos (
     FOREIGN KEY (id_receptor) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Poblar categorías iniciales por defecto para nuevos usuarios (Se hará vía PHP al registrarse)
--- Pero dejamos aquí los nombres base:
+-- Tabla de Configuración Global
+CREATE TABLE IF NOT EXISTS configuracion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    c_key VARCHAR(100) UNIQUE NOT NULL,
+    c_value TEXT,
+    c_label VARCHAR(150)
+) ENGINE=InnoDB;
+
+INSERT IGNORE INTO configuracion (c_key, c_value, c_label) VALUES 
+('app_name', 'Montia', 'Nombre de la Aplicación'),
+('allow_registrations', '1', 'Permitir nuevos registros'),
+('maintenance_mode', '0', 'Modo Mantenimiento'),
+('max_links_free', '50', 'Límite de links para usuarios gratis');
+
+-- Tabla de Solicitudes de Cambio de Plan
+CREATE TABLE IF NOT EXISTS solicitudes_plan (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    plan_solicitado VARCHAR(50) NOT NULL,
+    estado ENUM('pendiente', 'completado', 'cancelado') DEFAULT 'pendiente',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Poblar categorías iniciales por defecto para nuevos usuarios
 -- Tecnología, Gatitos, Risa, Trabajo, Educación, Comida, Viajes.
