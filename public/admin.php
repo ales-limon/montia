@@ -56,9 +56,11 @@ $systemFiles = ($section === 'system') ? $admin->getSystemFiles()['data'] : null
 
         /* Consola Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
-        .modal-content { background: #1a1a2e; width: 90%; max-width: 800px; border-radius: 15px; border: 1px solid var(--glass-border); overflow: hidden; }
-        .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
-        .console-body { padding: 1.5rem; font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; color: #2ed573; max-height: 400px; overflow-y: auto; background: #0c0c1a; }
+        .modal-content { background: #1a1a2e; width: 90%; max-width: 800px; border-radius: 15px; border: 1px solid var(--glass-border); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); }
+        .console-body { padding: 3rem 2rem; font-family: 'Outfit', sans-serif; font-size: 1rem; color: #2ed573; max-height: 500px; overflow-y: auto; background: #0c0c1a; text-align: center; scrollbar-width: thin; scrollbar-color: var(--primary) transparent; }
+        .console-body::-webkit-scrollbar { width: 6px; }
+        .console-body::-webkit-scrollbar-thumb { background-color: var(--primary); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -474,7 +476,7 @@ $systemFiles = ($section === 'system') ? $admin->getSystemFiles()['data'] : null
             const body = document.getElementById('consoleBody');
             
             overlay.style.display = 'flex';
-            body.innerHTML = '<span style="color: #6366f1;">> Iniciando script ' + name + '...</span><br>';
+            body.innerHTML = '<div style="color: #6366f1; margin-bottom: 1rem;">> Iniciando script ' + name + '...</div>';
             
             try {
                 const response = await fetch(name);
@@ -482,13 +484,13 @@ $systemFiles = ($section === 'system') ? $admin->getSystemFiles()['data'] : null
                 
                 // Limpiar etiquetas de enlace o botones del script original para que solo se vea el resultado
                 const cleanText = text.replace(/<a.*?>.*?<\/a>/ig, '')
-                                     .replace(/<h2>.*?<\/h2>/ig, (match) => match.replace('h2', 'div style="color: #818cf8; font-weight: bold; margin-bottom: 1rem;"'))
-                                     .replace(/<h3>.*?<\/h3>/ig, (match) => match.replace('h3', 'div style="color: #2ed573; font-weight: bold; margin: 1rem 0;"'));
+                                     .replace(/<h2>.*?<\/h2>/ig, (match) => match.replace('h2', 'div style="color: #818cf8; font-weight: bold; margin-bottom: 1.5rem; font-size: 1.4rem;"'))
+                                     .replace(/<h3>.*?<\/h3>/ig, (match) => match.replace('h3', 'div style="color: #2ed573; font-weight: bold; margin: 1.5rem 0; font-size: 1.1rem;"'));
                 
                 body.innerHTML += cleanText;
-                body.innerHTML += '<br><br><span style="color: #6366f1;">> Ejecución finalizada.</span>';
+                body.innerHTML += '<div style="color: #6366f1; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">> Ejecución finalizada correctamente.</div>';
             } catch (e) {
-                body.innerHTML += '<br><span style="color: #ff4757;">> Error de conexión al ejecutar el script.</span>';
+                body.innerHTML += '<div style="color: #ff4757; margin-top: 1rem;">> Error crítico de conexión.</div>';
             }
         }
 
