@@ -53,6 +53,12 @@ $systemFiles = ($section === 'system') ? $admin->getSystemFiles()['data'] : null
         
         .nav-link.has-badge { position: relative; }
         .nav-badge { position: absolute; top: 10px; right: 10px; background: #ff4757; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.65rem; font-weight: 800; }
+
+        /* Consola Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+        .modal-content { background: #1a1a2e; width: 90%; max-width: 800px; border-radius: 15px; border: 1px solid var(--glass-border); overflow: hidden; }
+        .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
+        .console-body { padding: 1.5rem; font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; color: #2ed573; max-height: 400px; overflow-y: auto; background: #0c0c1a; }
     </style>
 </head>
 <body>
@@ -463,13 +469,32 @@ $systemFiles = ($section === 'system') ? $admin->getSystemFiles()['data'] : null
 
         async function runScript(name) {
             if (!confirm(`¿Ejecutar ${name} ahora?`)) return;
-            const win = window.open(name, '_blank');
-            if (win) {
-                alert("Script ejecutado en una nueva pestaña. Recarga esta página para ver cambios.");
-                location.reload();
-            } else {
-                alert("Por favor, permite las ventanas emergentes para este sitio.");
+            
+            const overlay = document.getElementById('consoleModal');
+            const body = document.getElementById('consoleBody');
+            
+            overlay.style.display = 'flex';
+            body.innerHTML = '<span style="color: #6366f1;">> Iniciando script ' + name + '...</span><br>';
+            
+            try {
+                const response = await fetch(name);
+                const text = await response.text();
+                
+                // Limpiar etiquetas de enlace o botones del script original para que solo se vea el resultado
+                const cleanText = text.replace(/<a.*?>.*?<\/a>/ig, '')
+                                     .replace(/<h2>.*?<\/h2>/ig, (match) => match.replace('h2', 'div style="color: #818cf8; font-weight: bold; margin-bottom: 1rem;"'))
+                                     .replace(/<h3>.*?<\/h3>/ig, (match) => match.replace('h3', 'div style="color: #2ed573; font-weight: bold; margin: 1rem 0;"'));
+                
+                body.innerHTML += cleanText;
+                body.innerHTML += '<br><br><span style="color: #6366f1;">> Ejecución finalizada.</span>';
+            } catch (e) {
+                body.innerHTML += '<br><span style="color: #ff4757;">> Error de conexión al ejecutar el script.</span>';
             }
+        }
+
+        function closeConsole() {
+            document.getElementById('consoleModal').style.display = 'none';
+            location.reload();
         }
 
         async function deleteScript(name) {
@@ -488,5 +513,17 @@ $systemFiles = ($section === 'system') ? $admin->getSystemFiles()['data'] : null
             } catch (e) { alert("Error de conexión."); }
         }
     </script>
+    <!-- Modal de Consola -->
+    <div class="modal-overlay" id="consoleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-size: 1rem; color: white;"><i class="fa-solid fa-terminal"></i> Salida del Sistema</h3>
+                <button class="btn glass" onclick="closeConsole()" style="padding: 0.3rem 0.6rem;">Cerrar</button>
+            </div>
+            <div class="console-body" id="consoleBody">
+                <!-- Aquí se carga la salida del script -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>
