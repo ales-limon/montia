@@ -3,21 +3,6 @@ Options -Indexes
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-
-    # --- INICIO BLINDAJE FORJIATO ---
-    # Si existe el archivo 'blindaje.lock' en la raíz, se activa el modo mantenimiento
-    # Excepto si tienes la cookie 'montia_access'
-    
-    # 1. No bloquear la llave ni la página de mantenimiento
-    RewriteCond %{REQUEST_URI} !^/public/llave\.php
-    RewriteCond %{REQUEST_URI} !^/public/mantenimiento\.php
-    # 2. Si existe el cerrojo y NO tienes la cookie
-    RewriteCond %{DOCUMENT_ROOT}/blindaje.lock -f
-    RewriteCond %{HTTP_COOKIE} !montia_access= [NC]
-    # 3. Mandar a mantenimiento
-    RewriteRule ^(.*)$ public/mantenimiento.php [L,R=302]
-    # --- FIN BLINDAJE FORJIATO ---
-
     # Redirigir la raíz a la carpeta public
     RewriteRule ^$ public/ [L]
     RewriteCond %{REQUEST_URI} !^/public/

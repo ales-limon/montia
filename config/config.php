@@ -60,3 +60,20 @@ function getTenantId() {
 function validateCsrf($token) {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
+
+// --- BLINDAJE FORJIATO (Mantenimiento Inteligente) ---
+$lockFile = __DIR__ . '/../blindaje.lock';
+if (file_exists($lockFile)) {
+    $userRol = $_SESSION['user_rol'] ?? '';
+    $currentPage = basename($_SERVER['PHP_SELF']);
+    $isApiLogin = ($currentPage == 'api.php' && isset($_GET['action']) && in_array($_GET['action'], ['login', 'logout']));
+    
+    // Lista de páginas permitidas durante el mantenimiento (para poder loguearse)
+    $allowedPages = ['login.php', 'api.php', 'mantenimiento.php', 'llave.php']; 
+
+    if ($userRol !== 'admin' && !in_array($currentPage, $allowedPages)) {
+        // Si no es admin y no está en una página permitida, a mantenimiento
+        header("Location: mantenimiento.php");
+        exit();
+    }
+}
