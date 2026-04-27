@@ -102,13 +102,16 @@ class MetadataService {
         $blackList = [
             'porno', 'porn', 'sexo', 'sexual', 'hentai', 'xvideo', 'xhamster',
             'droga', 'narco', 'sicario', 'gore', 'suicidio', 'muerte', 'asesinato',
-            'apuesta', 'casino', 'bet', 'ganar dinero', 'estafa', 'scam'
+            'apuesta', 'casino', 'bet', 'estafa', 'scam'
         ];
         
         $textToClean = strtolower($data['titulo'] . ' ' . $data['descripcion'] . ' ' . $data['url']);
         
         foreach ($blackList as $word) {
-            if (strpos($textToClean, $word) !== false) {
+            // Usar expresiones regulares con límites de palabra (\b) para evitar falsos positivos
+            // Ejemplo: 'bet' no bloqueará 'diabetes'
+            $pattern = "/\b" . preg_quote($word, '/') . "\b/i";
+            if (preg_match($pattern, $textToClean)) {
                 return false;
             }
         }
