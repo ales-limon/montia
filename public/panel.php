@@ -478,7 +478,9 @@ $userName = $_SESSION['user_name'];
             formData.append('titulo', link.titulo);
             formData.append('descripcion', link.descripcion);
             formData.append('imagen_url', link.imagen_url);
-            formData.append('notas', `Compartido por ${link.emisor_nombre}`);
+            // Preservar la nota del emisor
+            const notaFinal = (link.notas ? link.notas + "\n" : "") + `(De: ${link.emisor_nombre})`;
+            formData.append('notas', notaFinal);
             formData.append('csrf_token', '<?php echo $_SESSION['csrf_token']; ?>');
 
             try {

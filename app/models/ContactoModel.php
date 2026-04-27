@@ -106,8 +106,14 @@ class ContactoModel {
         
         if (!$stmt->fetch()) return false;
 
-        $stmt = $this->db->prepare("INSERT INTO enlaces_compartidos (id_enlace, id_emisor, id_receptor) VALUES (?, ?, ?)");
-        return $stmt->execute([$idEnlace, $this->userId, $idReceptor]);
+        // Obtener la nota original del emisor para este enlace
+        $stmtNote = $this->db->prepare("SELECT notas FROM enlaces WHERE id = ? AND id_tenant = ?");
+        $stmtNote->execute([$idEnlace, $this->userId]);
+        $enlace = $stmtNote->fetch();
+        $notasEmisor = $enlace ? $enlace['notas'] : null;
+
+        $stmt = $this->db->prepare("INSERT INTO enlaces_compartidos (id_enlace, id_emisor, id_receptor, notas_emisor) VALUES (?, ?, ?, ?)");
+        return $stmt->execute([$idEnlace, $this->userId, $idReceptor, $notasEmisor]);
     }
 
     /**
@@ -115,7 +121,7 @@ class ContactoModel {
      */
     public function listarCompartidosRecibidos() {
         $stmt = $this->db->prepare("
-            SELECT ec.id as share_id, e.*, u.nombre as emisor_nombre, ec.visto, ec.created_at as compartido_at
+            SELECT ec.id as share_id, e.*, ec.notas_emisor as notas, u.nombre as emisor_nombre, ec.visto, ec.created_at as compartido_at
             FROM enlaces_compartidos ec
             JOIN enlaces e ON ec.id_enlace = e.id
             JOIN usuarios u ON ec.id_emisor = u.id
