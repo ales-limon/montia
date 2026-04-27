@@ -44,7 +44,8 @@ class EnlaceModel {
      * Listar enlaces del tenant
      */
     public function listar($filtros = []) {
-        $sql = "SELECT e.*, c.nombre as categoria_nombre, c.color as categoria_color 
+        $sql = "SELECT e.*, c.nombre as categoria_nombre, c.color as categoria_color,
+                (SELECT COUNT(*) FROM compartidos_externos WHERE id_enlace = e.id) as total_compartidos
                 FROM enlaces e 
                 LEFT JOIN categorias c ON e.id_categoria = c.id 
                 WHERE e.id_tenant = ?";
@@ -113,5 +114,19 @@ class EnlaceModel {
 
         $stmt = $this->db->prepare("UPDATE enlaces SET $campo = NOT $campo WHERE id = ? AND id_tenant = ?");
         return $stmt->execute([$id, $this->tenantId]);
+    }
+
+    /**
+     * Obtener historial de compartidos externos
+     */
+    public function listarCompartidosExternos($idEnlace) {
+        $stmt = $this->db->prepare("
+            SELECT plataforma, destinatario, created_at 
+            FROM compartidos_externos 
+            WHERE id_enlace = ? AND id_tenant = ? 
+            ORDER BY created_at DESC
+        ");
+        $stmt->execute([$idEnlace, $this->tenantId]);
+        return $stmt->fetchAll();
     }
 }

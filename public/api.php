@@ -190,6 +190,18 @@ try {
             }
             exit;
 
+        case 'get_share_history':
+            require_once __DIR__ . '/../app/models/EnlaceModel.php';
+            $idEnlace = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+            if ($idEnlace) {
+                $enlaceModel = new EnlaceModel($pdo, $id_tenant);
+                $history = $enlaceModel->listarCompartidosExternos($idEnlace);
+                echo json_encode(['success' => true, 'data' => $history]);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'ID de enlace inválido.']);
+            }
+            exit;
+
         case 'update_user_plan':
             require_once __DIR__ . '/../app/controllers/AdminController.php';
             $adminCtrl = new AdminController($pdo);

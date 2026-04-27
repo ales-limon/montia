@@ -28,6 +28,30 @@ $userName = $_SESSION['user_name'];
         }
     </script>
     <style>        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .favorite-star {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #ffcc00;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+        }
+
+        .share-count-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #25D366;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
         .sticky-top { 
             position: sticky; 
             top: 0; 
@@ -308,7 +332,8 @@ $userName = $_SESSION['user_name'];
                                 ${isShared ? `<div class="shared-by"><i class="fa-solid fa-user-tag"></i> De: ${link.emisor_nombre}</div>` : ''}
                                 <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.5rem;">
                                     <h3 class="link-title">${link.titulo || 'Sin título'}</h3>
-                                    ${link.es_favorito ? '<i class="fa-solid fa-star" style="color: #f1c40f; font-size: 0.8rem;"></i>' : ''}
+                                    ${link.es_favorito ? '<i class="fa-solid fa-star favorite-star"></i>' : ''}
+                                    ${link.total_compartidos > 0 ? `<div class="share-count-badge" title="Compartido ${link.total_compartidos} veces en WhatsApp"><i class="fa-brands fa-whatsapp"></i> ${link.total_compartidos}</div>` : ''}
                                 </div>
                                 <p class="link-desc">${link.descripcion || 'Sin descripción disponible.'}</p>
                                 ${link.notas ? `<p class="link-notes-card"><i class="fa-solid fa-note-sticky"></i> "${link.notas}"</p>` : ''}
@@ -434,6 +459,34 @@ $userName = $_SESSION['user_name'];
             };
 
             document.getElementById('detailModal').style.display = 'flex';
+
+            // Cargar Historial de Compartidos Externos
+            loadShareHistory(link.id);
+        }
+
+        async function loadShareHistory(linkId) {
+            const body = document.getElementById('detailBody');
+            try {
+                const response = await fetch(`api.php?action=get_share_history&id=${linkId}`);
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    const historyHtml = `
+                        <div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                            <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.8rem;"><i class="fa-solid fa-history"></i> Historial de Compartidos (WhatsApp)</h4>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                ${result.data.map(h => `
+                                    <div style="background: rgba(255,255,255,0.03); padding: 0.5rem 0.8rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                                        <span><i class="fa-solid fa-user" style="color: #25D366; font-size: 0.7rem;"></i> <strong>${h.destinatario || 'Alguien'}</strong></span>
+                                        <span style="font-size: 0.7rem; color: var(--text-muted);">${new Date(h.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                    body.insertAdjacentHTML('beforeend', historyHtml);
+                }
+            } catch (e) { console.error("Error al cargar historial:", e); }
         }
 
         function closeDetailModal() { document.getElementById('detailModal').style.display = 'none'; }
