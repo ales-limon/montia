@@ -145,20 +145,39 @@ class AdminController {
     public function getSystemFiles() {
         if ($_SESSION['user_rol'] !== 'admin') return [];
 
-        $files = [
-            ['name' => 'migrar.php', 'desc' => 'Ejecuta actualizaciones de base de datos'],
+        $root = __DIR__ . '/../../public/';
+        $result = [];
+
+        // Archivos fijos obligatorios
+        $fixedFiles = [
             ['name' => 'llave.php', 'desc' => 'Script de acceso de emergencia'],
             ['name' => 'check_db.php', 'desc' => 'Script de diagnóstico de DB']
         ];
 
-        $root = __DIR__ . '/../../public/';
-        $result = [];
+        // 1. Escanear dinámicamente todos los archivos que empiecen con 'migrar'
+        $allFiles = scandir($root);
+        foreach ($allFiles as $file) {
+            if (strpos($file, 'migrar') === 0 && strpos($file, '.php') !== false) {
+                $desc = ($file === 'migrar.php') ? 'Ejecuta actualizaciones de base de datos (Base)' : 'Actualización de base de datos específica';
+                
+                $stmt = $this->db->prepare("SELECT c_value FROM configuracion WHERE c_key = ?");
+                $stmt->execute(['last_run_' . $file]);
+                $lastRun = $stmt->fetchColumn();
 
-        foreach ($files as $f) {
+                $result[] = [
+                    'name' => $file,
+                    'desc' => $desc,
+                    'exists' => true,
+                    'last_run' => $lastRun ? $lastRun : 'Nunca'
+                ];
+            }
+        }
+
+        // 2. Añadir los archivos fijos (si existen)
+        foreach ($fixedFiles as $f) {
             $path = $root . $f['name'];
             $exists = file_exists($path);
             
-            // Consultar si ya se ejecutó (guardado en la tabla configuracion)
             $stmt = $this->db->prepare("SELECT c_value FROM configuracion WHERE c_key = ?");
             $stmt->execute(['last_run_' . $f['name']]);
             $lastRun = $stmt->fetchColumn();
@@ -180,9 +199,13 @@ class AdminController {
     public function deleteSystemFile($filename) {
         if ($_SESSION['user_rol'] !== 'admin') return ['success' => false];
         
-        // Seguridad: Solo permitir borrar archivos específicos
+        // Seguridad: Solo permitir borrar archivos específicos o migraciones dinámicas
+        $isMigration = (strpos($filename, 'migrar') === 0 && strpos($filename, '.php') !== false);
         $allowed = ['migrar.php', 'llave.php', 'check_db.php'];
-        if (!in_array($filename, $allowed)) return ['success' => false, 'error' => 'Archivo no permitido.'];
+        
+        if (!in_array($filename, $allowed) && !$isMigration) {
+            return ['success' => false, 'error' => 'Archivo no permitido.'];
+        }
 
         $path = __DIR__ . '/../../public/' . $filename;
         if (file_exists($path)) {
