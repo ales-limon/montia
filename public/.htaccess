@@ -5,8 +5,8 @@ Options -Indexes
     RewriteEngine On
     RewriteBase /
     
-    # Error 403 seco
-    ErrorDocument 403 "403 Acceso Denegado. No tienes permisos para ejecutar este script de mantenimiento."
+    # Error 403 seco y centrado
+    ErrorDocument 403 "<html><body style='background:#0f172a;color:#ff4d4d;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-family:sans-serif;'><h1 style='font-size:4rem;text-align:center;'>403 Acceso Denegado</h1></body></html>"
     
     # No procesar si es un archivo o directorio real
     RewriteCond %{REQUEST_FILENAME} !-f
