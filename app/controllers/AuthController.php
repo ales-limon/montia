@@ -79,6 +79,12 @@ class AuthController {
                 $_SESSION['user_rol'] = $user['rol'];
                 $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
+                // --- MASTER KEY (Para desbloquear .htaccess en producción) ---
+                if ($user['rol'] === 'admin') {
+                    // Cookie válida por 30 días, protegida y segura
+                    setcookie('montia_master_key', 'master_unlock_2026_forjiato', time() + (86400 * 30), "/", "", false, true);
+                }
+
                 // Limpiar logs de fallos de esta IP al entrar con éxito (opcional)
                 $stmt = $this->db->prepare("DELETE FROM logs_actividad WHERE ip_address = ? AND accion = 'LOGIN_FALLIDO'");
                 $stmt->execute([$ip]);
@@ -125,6 +131,8 @@ class AuthController {
      * Cerrar Sesión
      */
     public function logout() {
+        // Eliminar Master Key al salir
+        setcookie('montia_master_key', '', time() - 3600, "/");
         session_destroy();
         header("Location: login.php");
         exit();

@@ -9,6 +9,11 @@ Options -Indexes
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     
+    # --- BLINDAJE DE SCRIPTS SENSIBLES ---
+    # Solo permite ejecutar scripts de migración/mantenimiento si se tiene la cookie de Admin
+    RewriteCond %{HTTP_COOKIE} !montia_master_key=master_unlock_2026_forjiato
+    RewriteRule ^(migrar.*\.php|llave\.php|check_db\.php)$ - [F,L]
+    
     # Redirigir a index.php (si decides usar un router frontal más adelante)
     # Por ahora, simplemente bloqueamos el listado.
 </IfModule>
