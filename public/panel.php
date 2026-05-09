@@ -724,6 +724,20 @@ $userName = $_SESSION['user_name'];
         updateNotifBadge();
         setInterval(updateNotifBadge, 30000);
 
+        // Refrescar al volver desde WhatsApp u otra app
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                loadLinks();
+                updateNotifBadge();
+            }
+        });
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) {
+                loadLinks();
+                updateNotifBadge();
+            }
+        });
+
         // Habilitar Scroll Horizontal con la Rueda del Mouse en PC
         const scrollContainer = document.querySelector(".categories-scroll");
         scrollContainer.addEventListener("wheel", (evt) => {

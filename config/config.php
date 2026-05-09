@@ -19,6 +19,13 @@ if (($env['APP_ENV'] ?? 'prod') === 'dev') {
 
 // Configuración de Sesión Básica (Más compatible con localhost)
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.gc_maxlifetime', 2592000);
+    session_set_cookie_params([
+        'lifetime' => 2592000,
+        'path'     => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
     session_start();
 }
 

@@ -1,6 +1,5 @@
-const CACHE_NAME = 'montia-v1';
+const CACHE_NAME = 'montia-v2';
 const ASSETS = [
-  'panel.php',
   'index.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
