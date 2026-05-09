@@ -346,7 +346,7 @@ $userName = $_SESSION['user_name'];
                         };
 
                         card.innerHTML = `
-                            ${link.imagen_url ? `<img src="${link.imagen_url}" class="link-image" alt="" onerror="refreshLinkImage(this,${link.id})">` : ''}
+                            ${link.imagen_url ? `<img src="${metaImageUrl(link.imagen_url)}" class="link-image" alt="" onerror="refreshLinkImage(this,${link.id})">` : ''}
                             <div class="link-content">
                                 ${isShared ? `<div class="shared-by"><i class="fa-solid fa-user-tag"></i> De: ${link.emisor_nombre}</div>` : ''}
                                 <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.5rem;">
@@ -604,6 +604,14 @@ $userName = $_SESSION['user_name'];
             updateNotifBadge();
         }
 
+        function metaImageUrl(url) {
+            if (!url) return url;
+            if (url.includes('fbcdn.net') || url.includes('cdninstagram.com')) {
+                return 'api.php?action=proxy_image&url=' + encodeURIComponent(url);
+            }
+            return url;
+        }
+
         async function refreshLinkImage(img, linkId) {
             img.onerror = null;
             img.style.display = 'none';
@@ -611,7 +619,7 @@ $userName = $_SESSION['user_name'];
                 const res = await fetch(`api.php?action=refresh_metadata&id=${linkId}`);
                 const result = await res.json();
                 if (result.success && result.data?.imagen_url) {
-                    img.src = result.data.imagen_url;
+                    img.src = metaImageUrl(result.data.imagen_url);
                     img.onerror = () => img.style.display = 'none';
                     img.style.display = '';
                 }

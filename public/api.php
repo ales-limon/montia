@@ -195,6 +195,28 @@ try {
             $linkController->refreshMetadata($id);
             break;
 
+        case 'proxy_image':
+            $url = filter_input(INPUT_GET, 'url', FILTER_SANITIZE_URL);
+            $host = parse_url($url, PHP_URL_HOST) ?? '';
+            // Solo permitir dominios de Meta CDN
+            if (!$url || !preg_match('/\.(fbcdn\.net|cdninstagram\.com)$/', $host)) {
+                http_response_code(400); exit;
+            }
+            $ctx = stream_context_create(['http' => [
+                'method'  => 'GET',
+                'header'  => "User-Agent: facebookexternalhit/1.1\r\n",
+                'timeout' => 10,
+            ], 'ssl' => ['verify_peer' => false]]);
+            $img = @file_get_contents($url, false, $ctx);
+            if ($img === false) { http_response_code(404); exit; }
+            $mime = 'image/jpeg';
+            if (str_ends_with(strtok($url, '?'), '.webp')) $mime = 'image/webp';
+            elseif (str_ends_with(strtok($url, '?'), '.png')) $mime = 'image/png';
+            header("Content-Type: $mime");
+            header('Cache-Control: public, max-age=604800');
+            echo $img;
+            exit;
+
         case 'get_share_history':
             require_once __DIR__ . '/../app/models/EnlaceModel.php';
             $idEnlace = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
