@@ -190,6 +190,11 @@ try {
             }
             exit;
 
+        case 'refresh_metadata':
+            $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+            $linkController->refreshMetadata($id);
+            break;
+
         case 'get_share_history':
             require_once __DIR__ . '/../app/models/EnlaceModel.php';
             $idEnlace = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);

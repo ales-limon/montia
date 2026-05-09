@@ -184,6 +184,23 @@ class LinkController {
         }
     }
 
+    public function refreshMetadata($id) {
+        if (!$id) {
+            $this->jsonResponse(false, null, "ID no válido.");
+            return;
+        }
+        $enlace = $this->linkModel->obtenerPorId($id);
+        if (!$enlace) {
+            $this->jsonResponse(false, null, "Enlace no encontrado.");
+            return;
+        }
+        $metadata = $this->metadataService->extract($enlace['url']);
+        if (!empty($metadata['imagen_url'])) {
+            $this->linkModel->actualizarMetadata($id, $metadata['imagen_url'], $metadata['titulo'], $metadata['descripcion']);
+        }
+        $this->jsonResponse(true, ['imagen_url' => $metadata['imagen_url'] ?? '']);
+    }
+
     /**
      * Respuesta JSON estándar FORJIATO
      */

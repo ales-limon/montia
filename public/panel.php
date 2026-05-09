@@ -346,7 +346,7 @@ $userName = $_SESSION['user_name'];
                         };
 
                         card.innerHTML = `
-                            ${link.imagen_url ? `<img src="${link.imagen_url}" class="link-image" alt="" onerror="this.style.display='none'">` : ''}
+                            ${link.imagen_url ? `<img src="${link.imagen_url}" class="link-image" alt="" onerror="refreshLinkImage(this,${link.id})">` : ''}
                             <div class="link-content">
                                 ${isShared ? `<div class="shared-by"><i class="fa-solid fa-user-tag"></i> De: ${link.emisor_nombre}</div>` : ''}
                                 <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.5rem;">
@@ -602,6 +602,20 @@ $userName = $_SESSION['user_name'];
             await fetch('api.php?action=delete_shared_link', { method: 'POST', body: delData });
             if (currentFilter.shared) loadLinks();
             updateNotifBadge();
+        }
+
+        async function refreshLinkImage(img, linkId) {
+            img.onerror = null;
+            img.style.display = 'none';
+            try {
+                const res = await fetch(`api.php?action=refresh_metadata&id=${linkId}`);
+                const result = await res.json();
+                if (result.success && result.data?.imagen_url) {
+                    img.src = result.data.imagen_url;
+                    img.onerror = () => img.style.display = 'none';
+                    img.style.display = '';
+                }
+            } catch (e) { /* silencioso */ }
         }
 
         async function markAsSeen(shareId) {

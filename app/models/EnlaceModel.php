@@ -119,6 +119,13 @@ class EnlaceModel {
     /**
      * Obtener historial de compartidos externos
      */
+    public function actualizarMetadata($id, $imagen_url, $titulo, $descripcion) {
+        $stmt = $this->db->prepare(
+            "UPDATE enlaces SET imagen_url = ?, titulo = ?, descripcion = ? WHERE id = ? AND id_tenant = ?"
+        );
+        return $stmt->execute([$imagen_url, $titulo, $descripcion, $id, $this->tenantId]);
+    }
+
     public function listarCompartidosExternos($idEnlace) {
         $stmt = $this->db->prepare("
             SELECT plataforma, destinatario, created_at 
