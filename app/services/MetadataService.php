@@ -44,10 +44,11 @@ class MetadataService {
             libxml_clear_errors();
 
             // 1. EXTRAER TÍTULO (Prioridad: OpenGraph -> Twitter -> Title tag)
-            $data['titulo'] = $this->getXpathValue($xpath, '//meta[@property="og:title"]/@content') 
-                           ?? $this->getXpathValue($xpath, '//meta[@name="twitter:title"]/@content')
-                           ?? $this->getXpathValue($xpath, '//title')
-                           ?? 'Sin título';
+            $rawTitulo = $this->getXpathValue($xpath, '//meta[@property="og:title"]/@content')
+                      ?? $this->getXpathValue($xpath, '//meta[@name="twitter:title"]/@content')
+                      ?? $this->getXpathValue($xpath, '//title')
+                      ?? 'Sin título';
+            $data['titulo'] = $this->cleanSocialTitle($rawTitulo);
 
             // 2. EXTRAER DESCRIPCIÓN
             $data['descripcion'] = $this->getXpathValue($xpath, '//meta[@property="og:description"]/@content') 
@@ -244,6 +245,22 @@ class MetadataService {
         }
 
         return $content;
+    }
+
+    /**
+     * Elimina el prefijo de stats de engagement que Facebook/Meta pone en og:title
+     * según el idioma de la IP del servidor (ruso, alemán, etc.)
+     * Ej: "1 млн просмотров - 28 тыс. реакций | Título real" → "Título real"
+     */
+    private function cleanSocialTitle($title) {
+        if (strpos($title, ' | ') !== false) {
+            $parts = explode(' | ', $title);
+            $lastPart = trim(end($parts));
+            if (strlen($lastPart) > 3) {
+                return $lastPart;
+            }
+        }
+        return $title;
     }
 
     private function getXpathValue($xpath, $query) {
