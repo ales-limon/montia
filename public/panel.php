@@ -52,7 +52,25 @@ $userName = $_SESSION['user_name'];
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             z-index: 2;
         }
-        .sticky-top { 
+        #pullIndicator {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(-60px);
+            background: var(--accent);
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 0 0 20px 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            z-index: 9999;
+            transition: transform 0.25s ease;
+            pointer-events: none;
+        }
+        #pullIndicator.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+        .sticky-top {
             position: sticky; 
             top: 0; 
             background: transparent; 
@@ -128,6 +146,7 @@ $userName = $_SESSION['user_name'];
     </style>
 </head>
 <body>
+    <div id="pullIndicator"><i class="fa-solid fa-rotate-right"></i> Actualizando...</div>
     <div class="container">
         <div class="sticky-top">
             <header class="header">
@@ -606,7 +625,14 @@ $userName = $_SESSION['user_name'];
 
             const text = `Mira lo que encontré: ${currentShareData.titulo}\n\n${currentShareData.url}\n\nTe lo comparto desde Montia.\nGuarda tus propios enlaces en: https://montia.mx`;
             const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-            window.open(waUrl, '_blank');
+            // Anchor trick: window.open(_blank) no funciona en iOS PWA standalone
+            const a = document.createElement('a');
+            a.href = waUrl;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
             closeShareModal();
         }
 
@@ -723,6 +749,29 @@ $userName = $_SESSION['user_name'];
         loadLinks();
         updateNotifBadge();
         setInterval(updateNotifBadge, 30000);
+
+        // Pull-to-refresh
+        const pullIndicator = document.getElementById('pullIndicator');
+        let touchStartY = 0;
+        let pulling = false;
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        document.addEventListener('touchmove', (e) => {
+            if (window.scrollY === 0 && e.touches[0].clientY - touchStartY > 70) {
+                pulling = true;
+                pullIndicator.classList.add('visible');
+            }
+        }, { passive: true });
+        document.addEventListener('touchend', () => {
+            if (pulling) {
+                pulling = false;
+                loadCategories();
+                loadLinks();
+                updateNotifBadge();
+                setTimeout(() => pullIndicator.classList.remove('visible'), 800);
+            }
+        });
 
         // Refrescar al volver desde WhatsApp u otra app
         document.addEventListener('visibilitychange', () => {
