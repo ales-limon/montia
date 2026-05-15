@@ -393,13 +393,18 @@ $userName = $_SESSION['user_name'];
             });
         });
 
-        async function openModal() { 
+        async function openModal() {
             document.getElementById('editLinkId').value = '';
             document.getElementById('urlGroup').style.display = 'block';
             document.getElementById('editLinkUrl').required = true;
             document.getElementById('addLinkForm').reset();
             document.querySelector('#addModal h2').innerText = 'Añadir Enlace';
-            document.getElementById('addModal').style.display = 'flex'; 
+            document.getElementById('addModal').style.display = 'flex';
+            // Resetear el botón siempre que se abra el modal
+            const btn = document.querySelector('#addLinkForm button');
+            btn.innerHTML = 'Guardar Enlace <i class="fa-solid fa-cloud-arrow-up"></i>';
+            btn.style.background = '';
+            btn.disabled = false;
 
             // Inteligencia de Portapapeles (Auto-Paste UX)
             if (navigator.clipboard && navigator.clipboard.readText) {
