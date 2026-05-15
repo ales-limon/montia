@@ -18,6 +18,13 @@ class EnlaceModel {
     }
 
     /**
+     * Elimina caracteres de 4 bytes (emojis, símbolos raros) que MySQL utf8 rechaza
+     */
+    private function limpiarUtf8($texto) {
+        return preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $texto ?? '');
+    }
+
+    /**
      * Crear un nuevo enlace
      */
     public function crear($data) {
@@ -25,14 +32,15 @@ class EnlaceModel {
             (id_tenant, id_categoria, url, titulo, descripcion, imagen_url, notas, es_favorito, ver_mas_tarde) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         
-        $titulo = mb_substr($data['titulo'] ?? '', 0, 255);
-        
+        $titulo      = mb_substr($this->limpiarUtf8($data['titulo'] ?? ''), 0, 255);
+        $descripcion = mb_substr($this->limpiarUtf8($data['descripcion'] ?? ''), 0, 500);
+
         return $stmt->execute([
             $this->tenantId,
             $data['id_categoria'] ?? null,
             $data['url'],
             $titulo,
-            $data['descripcion'] ?? '',
+            $descripcion,
             $data['imagen_url'] ?? '',
             $data['notas'] ?? '',
             $data['es_favorito'] ?? 0,
