@@ -672,20 +672,19 @@ $userName = $_SESSION['user_name'];
 
         document.getElementById('addLinkForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = e.target.querySelector('button');
+            if (btn.disabled) return; // Evitar doble envío
+
             const formData = new FormData(e.target);
             const isEdit = formData.get('id') !== '';
             const action = isEdit ? 'update_link' : 'save_link';
-
-            const btn = e.target.querySelector('button');
             const originalText = btn.innerHTML;
+
             btn.innerHTML = 'Procesando... <i class="fa-solid fa-spinner fa-spin"></i>';
             btn.disabled = true;
 
             try {
-                const response = await fetch(`api.php?action=${action}`, {
-                    method: 'POST',
-                    body: formData
-                });
+                const response = await fetch(`api.php?action=${action}`, { method: 'POST', body: formData });
                 const result = await response.json();
                 if (result.success) {
                     closeModal();
@@ -697,16 +696,13 @@ $userName = $_SESSION['user_name'];
                     btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + (result.error || 'Error al guardar');
                     btn.style.background = '#ef4444';
                     setTimeout(() => { btn.innerHTML = originalText; btn.style.background = ''; btn.disabled = false; }, 3000);
-                    return;
                 }
             } catch (error) {
                 console.error('Error:', error);
-                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Enlace tardó demasiado, reintenta';
+                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Tardó demasiado, reintenta';
                 btn.style.background = '#ef4444';
                 setTimeout(() => { btn.innerHTML = originalText; btn.style.background = ''; btn.disabled = false; }, 3000);
-                return;
             }
-            finally { btn.innerHTML = originalText; btn.disabled = false; }
         });
 
         async function deleteLink(id) {
