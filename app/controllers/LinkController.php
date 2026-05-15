@@ -117,7 +117,7 @@ class LinkController {
             ];
 
             if ($this->linkModel->crear($data)) {
-                $this->jsonResponse(true, $data, "Enlace guardado correctamente.");
+                $this->jsonResponse(true, null, "Enlace guardado correctamente.");
             } else {
                 $this->jsonResponse(false, null, "Error al guardar en la base de datos.");
             }
@@ -205,15 +205,15 @@ class LinkController {
      * Respuesta JSON estándar FORJIATO
      */
     private function jsonResponse($success, $data = null, $error = null) {
-        // Limpiar cualquier salida accidental (avisos de PHP, etc)
         if (ob_get_length()) ob_clean();
-        
         header('Content-Type: application/json');
-        echo json_encode([
-            'success' => $success,
-            'data' => $data,
-            'error' => $error
-        ]);
+        // JSON_INVALID_UTF8_SUBSTITUTE evita que json_encode falle con bytes inválidos
+        $json = json_encode(
+            ['success' => $success, 'data' => $data, 'error' => $error],
+            JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+        );
+        // Fallback por si acaso: respuesta mínima siempre válida
+        echo $json ?: json_encode(['success' => $success, 'data' => null, 'error' => $error]);
         exit();
     }
 }
