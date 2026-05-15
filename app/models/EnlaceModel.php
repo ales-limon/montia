@@ -21,7 +21,11 @@ class EnlaceModel {
      * Elimina caracteres de 4 bytes (emojis, símbolos raros) que MySQL utf8 rechaza
      */
     private function limpiarUtf8($texto) {
-        return preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $texto ?? '');
+        if (!$texto) return '';
+        // Eliminar bytes inválidos que vienen del scraping (Latin-1, Windows-1252, etc.)
+        $texto = @iconv('UTF-8', 'UTF-8//IGNORE', $texto);
+        // Eliminar caracteres de 4 bytes como red de seguridad extra
+        return preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $texto);
     }
 
     /**
