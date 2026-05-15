@@ -9,6 +9,19 @@ require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/LinkController.php';
 require_once __DIR__ . '/../app/controllers/ContactoController.php';
 
+// Atrapar timeouts y fatales que no llegan al catch de Throwable
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        if (ob_get_length()) ob_clean();
+        header('Content-Type: application/json');
+        $msg = strpos($error['message'], 'execution time') !== false
+            ? 'El enlace tardó demasiado en responder. Inténtalo de nuevo.'
+            : 'Error del servidor. Inténtalo de nuevo.';
+        echo json_encode(['success' => false, 'error' => $msg]);
+    }
+});
+
 try {
     $action = $_GET['action'] ?? '';
     $id_tenant = getTenantId();

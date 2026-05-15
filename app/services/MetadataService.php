@@ -226,7 +226,7 @@ class MetadataService {
                             "Accept-Language: es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3\r\n",
                 'follow_location' => 1,
                 'max_redirects' => 5,
-                'timeout' => 15 // Aumentamos un poco el timeout para sitios lentos
+                'timeout' => 7 // Máximo 7s por intento (2 intentos = 14s, evita timeout de PHP)
             ],
             'ssl' => [
                 'verify_peer' => false,

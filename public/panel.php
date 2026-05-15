@@ -690,16 +690,21 @@ $userName = $_SESSION['user_name'];
                 if (result.success) {
                     closeModal();
                     e.target.reset();
-                    // Limpiar filtros al guardar
                     currentFilter = {};
                     loadCategories();
                     loadLinks();
-                } else { 
-                    alert("Error: " + result.error); 
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + (result.error || 'Error al guardar');
+                    btn.style.background = '#ef4444';
+                    setTimeout(() => { btn.innerHTML = originalText; btn.style.background = ''; btn.disabled = false; }, 3000);
+                    return;
                 }
-            } catch (error) { 
+            } catch (error) {
                 console.error('Error:', error);
-                alert("Error de conexión al servidor.");
+                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Enlace tardó demasiado, reintenta';
+                btn.style.background = '#ef4444';
+                setTimeout(() => { btn.innerHTML = originalText; btn.style.background = ''; btn.disabled = false; }, 3000);
+                return;
             }
             finally { btn.innerHTML = originalText; btn.disabled = false; }
         });
